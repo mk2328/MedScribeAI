@@ -3,8 +3,8 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '../../src/theme/colors';
-import { storage } from '../../src/utils/storage';
+import { colors } from '../../../src/theme/colors';
+import { storage } from '../../../src/utils/storage';
 
 const SPECIALIZATIONS = ["Cardiologist", "Dermatologist", "Neurologist", "Pediatrician", "General Physician", "Surgeon"];
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -96,7 +96,7 @@ export default function AddDoctor() {
                 
                 await storage.saveAllDoctors(updatedList);
                 setLoading(false);
-                Alert.alert("Updated", "Doctor profile updated!", [{ text: "OK", onPress: () => router.push('/(admin)/doctors') }]);
+                Alert.alert("Updated", "Doctor profile updated!", [{ text: "OK", onPress: () => router.push('/(admin)/doctor') }]);
             } else {
                 const isDuplicate = existingDoctors.some((doc: any) =>
                     (doc?.email?.toLowerCase() === form.email.toLowerCase()) ||
@@ -120,7 +120,7 @@ export default function AddDoctor() {
 
                 await storage.saveDoctor(newDoc);
                 setLoading(false);
-                Alert.alert("Success", "Doctor registered!", [{ text: "OK", onPress: () => router.push('/(admin)/doctors') }]);
+                Alert.alert("Success", "Doctor registered!", [{ text: "OK", onPress: () => router.push('/(admin)/doctor') }]);
             }
         } catch (error) {
             setLoading(false);

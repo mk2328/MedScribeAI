@@ -147,7 +147,7 @@ export default function AdminDashboard() {
                             icon="account-plus-outline"
                             title="Add New Doctor"
                             onPress={() => router.push({
-                                pathname: '/(admin)/add_doctor',
+                                pathname: "/(admin)/doctor/add",
                                 params: { editData: null }
                             })}
                         />
