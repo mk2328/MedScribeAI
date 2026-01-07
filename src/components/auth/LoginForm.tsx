@@ -1,58 +1,86 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { MOCK_USERS } from '../../services/mockData';
+import { colors } from '../../theme/colors'; // Theme import
 
 const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
-    router.replace('/(doctor)/dashboard'); 
+    if (!email || !password) {
+      alert("Fields cannot be empty");
+      return;
+    }
+    setLoading(true);
+    setTimeout(() => {
+      const user = MOCK_USERS.find(u => u.email === email && u.password === password);
+      setLoading(false);
+      if (user) {
+        user.role === 'admin' ? router.replace('/(admin)/dashboard') : router.replace('/(doctor)/dashboard');
+      } else {
+        alert("Invalid Credentials");
+      }
+    }, 800);
   };
 
   return (
-    <View className="bg-white rounded-[32px] p-8 shadow-xl shadow-slate-200">
-      <View className="mb-8 items-center">
-        <Text className="text-2xl font-bold text-slate-900">Welcome Back</Text>
-        <Text className="text-slate-500 mt-1">Login to your workspace</Text>
-      </View>
-
+    <View className="w-full gap-y-4">
       {/* Email Input */}
-      <View className="mb-5">
-        <Text className="text-sm font-bold text-slate-700 mb-2 ml-1">Email</Text>
-        <TextInput 
-          className="h-14 bg-slate-50 border border-slate-100 rounded-2xl px-4 text-base focus:border-[#0D9488]"
-          placeholder="doctor@medscribeai.com"
+      <View className="relative">
+        <TextInput
+          placeholder="Email Address"
+          placeholderTextColor={colors.mutedText}
+          value={email}
+          onChangeText={setEmail}
+          style={{ borderColor: colors.accent, color: colors.darkText }}
+          className="bg-white p-4 pl-12 rounded-2xl border"
           autoCapitalize="none"
         />
-      </View>
-
-      {/* Password Input */}
-      <View className="mb-4">
-        <Text className="text-sm font-bold text-slate-700 mb-2 ml-1">Password</Text>
-        <View className="flex-row items-center bg-slate-50 border border-slate-100 rounded-2xl pr-4">
-          <TextInput 
-            className="flex-1 h-14 px-4 text-base"
-            secureTextEntry={!showPassword}
-            placeholder="••••••••"
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <MaterialCommunityIcons name={showPassword ? "eye-off" : "eye"} size={22} color="#64748B" />
-          </TouchableOpacity>
+        <View className="absolute left-4 top-4">
+          <MaterialCommunityIcons name="email-outline" size={20} color={colors.mutedText} />
         </View>
       </View>
 
-      {/* Forgot Password moved here */}
-      <TouchableOpacity className="items-end mb-8 px-1">
-        <Text className="text-sm font-bold text-[#0D9488]">Forgot Password?</Text>
-      </TouchableOpacity>
+      {/* Password Input */}
+      <View className="relative">
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor={colors.mutedText}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          style={{ borderColor: colors.accent, color: colors.darkText }}
+          className="bg-white p-4 pl-12 rounded-2xl border"
+        />
+        <View className="absolute left-4 top-4">
+          <MaterialCommunityIcons name="lock-outline" size={20} color={colors.mutedText} />
+        </View>
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="absolute right-4 top-4">
+          <MaterialCommunityIcons 
+            name={showPassword ? "eye-off-outline" : "eye-outline"} 
+            size={20} color={colors.mutedText} 
+          />
+        </TouchableOpacity>
+      </View>
 
+      {/* Sign In Button */}
       <TouchableOpacity 
-        className="bg-[#0D9488] h-16 rounded-2xl items-center justify-center shadow-lg shadow-[#0D9488]/20 active:opacity-90"
         onPress={handleLogin}
+        disabled={loading}
+        style={{ backgroundColor: colors.primary }}
+        className="w-full h-[58px] rounded-2xl items-center justify-center shadow-md mt-2 active:opacity-90"
       >
-        <Text className="text-white text-lg font-bold">Sign In</Text>
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text className="text-white text-lg font-bold">Sign In</Text>
+        )}
       </TouchableOpacity>
     </View>
   );

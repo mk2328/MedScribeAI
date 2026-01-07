@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
+  Image,
   Pressable,
   ScrollView,
   StatusBar,
@@ -45,37 +46,37 @@ export default function WelcomeScreen() {
           {/* Background Accent */}
           <View className="absolute -top-12 -right-12 w-[200px] h-[200px] rounded-full bg-accent opacity-60" />
 
-          {/* Logo */}
-          <View className="items-center mb-7">
-            <View className="w-[72px] h-[72px] rounded-[22px] bg-primary items-center justify-center mb-3 shadow-md">
-              <MaterialCommunityIcons
-                name="stethoscope"
-                size={36}
-                color="white"
+          {/* Optimized Logo Section */}
+          <View className="items-center mb-5">
+            {/* Logo container size increased for better visibility */}
+            <View className="w-full h-[200px] items-center justify-center">
+              <Image 
+                // Ensure file name matches exactly
+                source={require("../assets/images/LogoMedScribeAI_3.png")}
+                className="w-[100%] h-full"
+                resizeMode="contain"
               />
             </View>
-
-            <Text className="text-[28px] font-extrabold text-darkText">
-              MedScribeAI
-            </Text>
-            <Text className="text-[13px] text-mutedText mt-1 font-medium">
+            
+            {/* Tagline below the logo */}
+            <Text className="text-[13px] text-mutedText mt-[-10px] font-semibold tracking-wider uppercase">
               Smart Hospital Ecosystem
             </Text>
           </View>
 
-          {/* Hero */}
-          <View className="items-center mb-7">
-            <Text className="text-[24px] font-bold text-center text-slate-800">
+          {/* Hero Section */}
+          <View className="items-center mb-8">
+            <Text className="text-[26px] font-bold text-center text-slate-800 leading-tight">
               Modernizing <Text className="text-primary">Healthcare</Text> with AI
             </Text>
 
-            <Text className="text-center text-mutedText mt-2.5 text-[14px] leading-[21px]">
+            <Text className="text-center text-mutedText mt-3 text-[15px] leading-[22px] px-2">
               The all-in-one solution for OPD management and automated patient records.
             </Text>
           </View>
 
-          {/* Features Section - Using the Modular Component */}
-          <View className="mb-7">
+          {/* Features Section */}
+          <View className="mb-8">
             {features.map((item, index) => (
               <FeatureCard 
                 key={index} 
@@ -86,35 +87,26 @@ export default function WelcomeScreen() {
             ))}
           </View>
 
-          {/* Buttons */}
-          <View className="gap-2.5 items-center">
+          {/* Action Button */}
+          <View className="items-center">
             <Pressable
               onPress={() => router.push("/login")}
-              className="w-full h-[52px] bg-primary rounded-[16px] flex-row items-center justify-center shadow-sm active:opacity-90"
+              className="w-full h-[58px] bg-primary rounded-[18px] flex-row items-center justify-center shadow-lg active:opacity-95"
             >
-              <Text className="text-white text-[16px] font-bold">
+              <Text className="text-white text-[17px] font-bold">
                 Login to your account
               </Text>
               <MaterialCommunityIcons
                 name="arrow-right"
-                size={18}
+                size={20}
                 color="white"
-                style={{ marginLeft: 6 }}
+                style={{ marginLeft: 8 }}
               />
             </Pressable>
-
-            {/* <Pressable
-              onPress={() => router.push("/signup")}
-              className="w-full h-[52px] rounded-[16px] border border-slate-300 items-center justify-center active:bg-accent"
-            >
-              <Text className="text-slate-600 text-[15px] font-semibold">
-                Create Account
-              </Text>
-            </Pressable> */}
           </View>
 
           {/* Footer */}
-          <Text className="text-center text-slate-400 text-[12px] mt-6">
+          <Text className="text-center text-slate-400 text-[12px] mt-8">
             Trusted by hospitals worldwide
           </Text>
         </View>

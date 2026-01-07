@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LoginForm from "../../src/components/auth/LoginForm";
 
@@ -23,32 +23,30 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
         className="px-6"
-        // NativeWind v4 layout centering
+        // Form aur Logo ko center karne ke liye
         contentContainerClassName="justify-center pb-10"
       >
-        {/* Logo */}
-          <View className="items-center mb-7">
-            <View className="w-[72px] h-[72px] rounded-[22px] bg-primary items-center justify-center mb-3 shadow-md">
-              <MaterialCommunityIcons
-                name="stethoscope"
-                size={36}
-                color="white"
-              />
-            </View>
-
-            <Text className="text-[28px] font-extrabold text-darkText">
-              MedScribeAI
-            </Text>
-            <Text className="text-[13px] text-mutedText mt-1 font-medium">
-              Smart Hospital Ecosystem
-            </Text>
+        {/* 2. Optimized Logo Section for Login Page */}
+        <View className="items-center mb-6"> 
+          {/* mb-6 rakha hai taake LoginForm ke sath gap kam rahe */}
+          <View className="w-full h-[160px] items-center justify-center">
+            <Image 
+              source={require("../../assets/images/LogoMedScribeAI_3.png")}
+              className="w-[90%] h-full"
+              resizeMode="contain"
+            />
           </View>
+          
+          <Text className="text-[12px] text-slate-400 mt-[-10px] font-semibold tracking-widest uppercase">
+            Smart Hospital Ecosystem
+          </Text>
+        </View>
 
         {/* 3. The Modular Form Component */}
         <LoginForm />
 
-        {/* 4. Help Text or Footer (Optional) */}
-        <Text className="text-center text-slate-400 text-[12px] mt-10">
+        {/* 4. Footer Help Text */}
+        <Text className="text-center text-slate-400 text-[11px] mt-8">
           Secure HIPAA Compliant Login
         </Text>
       </ScrollView>
