@@ -1,9 +1,11 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+// 1. Import AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MOCK_USERS } from '../../services/mockData';
-import { colors } from '../../theme/colors'; // Theme import
+import { colors } from '../../theme/colors';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -12,19 +14,39 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => { // Added async
     if (!email || !password) {
-      alert("Fields cannot be empty");
+      Alert.alert("Error", "Fields cannot be empty");
       return;
     }
+    
     setLoading(true);
-    setTimeout(() => {
-      const user = MOCK_USERS.find(u => u.email === email && u.password === password);
-      setLoading(false);
+
+    // Simulate API delay
+    setTimeout(async () => {
+      const user = MOCK_USERS.find(u => 
+        u.email.toLowerCase() === email.toLowerCase() && 
+        u.password === password
+      );
+
       if (user) {
-        user.role === 'admin' ? router.replace('/(admin)/dashboard') : router.replace('/(doctor)/dashboard');
+        try {
+          // 2. Save user data to storage before navigating
+          await AsyncStorage.setItem('user_data', JSON.stringify(user));
+          
+          setLoading(false);
+          if (user.role === 'admin') {
+            router.replace('/(admin)/dashboard');
+          } else {
+            router.replace('/(doctor)/dashboard');
+          }
+        } catch (error) {
+          setLoading(false);
+          Alert.alert("Login Error", "Could not save session.");
+        }
       } else {
-        alert("Invalid Credentials");
+        setLoading(false);
+        Alert.alert("Invalid Credentials", "Please check your email and password.");
       }
     }, 800);
   };
@@ -41,6 +63,7 @@ const LoginForm = () => {
           style={{ borderColor: colors.accent, color: colors.darkText }}
           className="bg-white p-4 pl-12 rounded-2xl border"
           autoCapitalize="none"
+          keyboardType="email-address"
         />
         <View className="absolute left-4 top-4">
           <MaterialCommunityIcons name="email-outline" size={20} color={colors.mutedText} />
