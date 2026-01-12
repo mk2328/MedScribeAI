@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text, SafeAreaView, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+// 1. Added Platform import
+import { View, Text, SafeAreaView, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { getPatientReport } from '@/src/services/doctorService';
 import { colors } from '@/src/theme/colors';
+// 2. Added StatusBar import
+import { StatusBar } from 'expo-status-bar';
 
 export default function PatientReport() {
   const { id } = useLocalSearchParams(); 
@@ -36,62 +39,66 @@ export default function PatientReport() {
 
   return (
     <SafeAreaView style={{ backgroundColor: colors.background }} className="flex-1">
-      <ScrollView className="px-6 pt-4" showsVerticalScrollIndicator={false}>
-        
-        {/* Patient Profile Header */}
-        <View className="mb-6">
-          <Text style={{ color: colors.mutedText }} className="text-xs font-bold uppercase tracking-wider mb-1">
-            Patient ID: {id}
-          </Text>
-          <Text style={{ color: colors.darkText }} className="text-3xl font-bold">
-            {patient.name}
-          </Text>
-          <Text style={{ color: colors.mutedText }} className="text-base mt-1">
-            {patient.age} years old • {patient.condition}
-          </Text>
-        </View>
-        
-        {/* Vitals Section - Using Accent and Primary Teal */}
+      {/* 3. Ensure system icons are visible and dark */}
+      <StatusBar style="dark" />
+
+      {/* 4. Navigation Bar - Added conditional marginTop to avoid status bar overlap */}
+      <View 
+        className="px-6" 
+        style={{ marginTop: Platform.OS === 'android' ? 40 : 10 }}
+      >
+        <TouchableOpacity 
+          onPress={() => router.replace("/(doctor)/dashboard")} 
+          className="flex-row items-center py-2"
+        >
+          <View style={{ backgroundColor: colors.accent }} className="w-8 h-8 rounded-full items-center justify-center">
+            <Text style={{ color: colors.primary }} className="text-lg font-bold">←</Text>
+          </View>
+          <Text style={{ color: colors.primary }} className="ml-3 font-bold text-base">Dashboard</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 5. Patient Header - Reduced mt to keep it visually connected but safe */}
+      <View className="px-6 mt-8 mb-8">
+        <Text style={{ color: colors.mutedText }} className="text-xs font-bold uppercase tracking-wider mb-1">
+          Patient ID: {id}
+        </Text>
+        <Text style={{ color: colors.darkText }} className="text-4xl font-bold">{patient.name}</Text>
+        <Text style={{ color: colors.mutedText }} className="text-lg mt-1">
+          {patient.age} years old • {patient.condition}
+        </Text>
+      </View>
+
+      {/* 6. Content Area */}
+      <View className="flex-1 px-6 pb-12">
         <View 
           style={{ backgroundColor: 'white', borderColor: colors.accent }} 
-          className="p-5 rounded-3xl border shadow-sm mb-6"
+          className="p-6 rounded-3xl border shadow-sm mb-6"
         >
-          <Text style={{ color: colors.primary }} className="font-bold mb-4 text-lg">Reception Vitals</Text>
-          <View className="flex-row justify-between">
-            <View className="items-center">
-              <Text style={{ color: colors.mutedText }} className="text-[10px] uppercase font-bold mb-1">BP</Text>
-              <Text style={{ color: colors.darkText }} className="text-base font-bold">{patient.vitals?.bp}</Text>
-            </View>
-            <View className="w-[1px] h-10 bg-teal-50" />
-            <View className="items-center">
-              <Text style={{ color: colors.mutedText }} className="text-[10px] uppercase font-bold mb-1">Temp</Text>
-              <Text style={{ color: colors.darkText }} className="text-base font-bold">{patient.vitals?.temp}</Text>
-            </View>
-            <View className="w-[1px] h-10 bg-teal-50" />
-            <View className="items-center">
-              <Text style={{ color: colors.mutedText }} className="text-[10px] uppercase font-bold mb-1">Weight</Text>
-              <Text style={{ color: colors.darkText }} className="text-base font-bold">{patient.vitals?.weight}</Text>
+          <Text style={{ color: colors.primary }} className="font-bold mb-4 text-lg">Clinical Summary</Text>
+          <View className="space-y-3">
+            <Text style={{ color: colors.darkText }} className="font-medium text-base">• Primary Symptom: {patient.condition}</Text>
+            <Text style={{ color: colors.darkText }} className="font-medium text-base">• Duration: 2-3 Days</Text>
+            <View className="mt-4 pt-4 border-t border-teal-50">
+              <Text className="text-red-500 font-bold text-sm uppercase tracking-tight">No Known Drug Allergies</Text>
             </View>
           </View>
         </View>
 
-        {/* Reason for Visit Section */}
-        <View style={{ backgroundColor: colors.accent }} className="p-5 rounded-3xl mb-8">
+        <View style={{ backgroundColor: colors.accent }} className="p-6 rounded-3xl mb-10">
           <Text style={{ color: colors.primary }} className="font-bold mb-2 text-lg">Reason for Visit</Text>
-          <Text style={{ color: colors.primary, opacity: 0.8 }} className="leading-5 font-medium">
+          <Text style={{ color: colors.primary, opacity: 0.8 }} className="leading-6 text-base font-medium">
             {patient.receptionNotes}
           </Text>
         </View>
 
-        {/* Start Consultation Button */}
         <TouchableOpacity 
           style={{ backgroundColor: colors.primary }} 
-          className="p-5 rounded-2xl items-center shadow-lg mb-10"
+          className="p-5 rounded-2xl items-center shadow-lg mt-auto mb-4"
         >
-          <Text className="text-white font-bold text-lg">Start Examination</Text>
+          <Text className="text-white font-bold text-xl">Start Examination</Text>
         </TouchableOpacity>
-
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

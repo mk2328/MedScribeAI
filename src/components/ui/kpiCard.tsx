@@ -1,16 +1,36 @@
+import React from 'react';
 import { View, Text } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // Built-in with Expo
+import { colors } from '../../theme/colors';
 
 interface KpiCardProps {
   title: string;
   value: string | number;
-  colorClass?: string;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap; // Type-safety for icons
+  iconColor?: string;
 }
 
-export const KpiCard = ({ title, value, colorClass = "text-blue-600" }: KpiCardProps) => {
+export const KpiCard = ({ title, value, icon, iconColor }: KpiCardProps) => {
   return (
-    <View className="bg-white p-4 rounded-2xl w-[48%] mb-4 shadow-sm border border-slate-100">
-      <Text className="text-slate-500 text-xs font-semibold uppercase">{title}</Text>
-      <Text className={`text-2xl font-bold mt-1 ${colorClass}`}>{value}</Text>
+    <View 
+      style={{ backgroundColor: 'white', borderColor: colors.accent }} 
+      className="w-[48%] p-4 rounded-3xl mb-4 border shadow-sm flex-row items-center"
+    >
+      <View 
+        style={{ backgroundColor: colors.accent }} 
+        className="w-10 h-10 rounded-2xl items-center justify-center mr-3"
+      >
+        <MaterialCommunityIcons name={icon} size={22} color={iconColor || colors.primary} />
+      </View>
+      
+      <View>
+        <Text style={{ color: colors.mutedText }} className="text-[10px] font-bold uppercase tracking-wider">
+          {title}
+        </Text>
+        <Text style={{ color: colors.darkText }} className="text-lg font-bold">
+          {value}
+        </Text>
+      </View>
     </View>
   );
 };
