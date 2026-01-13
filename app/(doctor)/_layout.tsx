@@ -1,9 +1,13 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/src/theme/colors';
 
 export default function DoctorLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -14,15 +18,20 @@ export default function DoctorLayout() {
           backgroundColor: 'white',
           borderTopWidth: 1,
           borderTopColor: '#f1f5f9',
-          height: 70,
-          paddingBottom: 12,
-          paddingTop: 8,
-          elevation: 0, // Removes shadow on Android
-          shadowOpacity: 0, // Removes shadow on iOS
+          // FIXED: Height aur Padding ko buttons se upar karne ke liye adjust kiya
+          height: Platform.OS === 'ios' ? 85 : 80, 
+          paddingTop: 10,
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : 20, 
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
+          fontSize: 11,
+          fontWeight: '700',
+          marginBottom: Platform.OS === 'android' ? 5 : 0,
         },
       }}
     >
@@ -31,27 +40,27 @@ export default function DoctorLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home-variant" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="queue/index"
-        options={{
-          title: 'Queue',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-group" size={size} color={color} />
+            <MaterialCommunityIcons name="home-variant" size={26} color={color} />
           ),
         }}
       />
       
-      {/* Hiding the [id] report route from the bottom bar 
-          so it doesn't create an empty tab space.
-      */}
+      {/* FIXED: Patient Queue Icon and Label */}
+      <Tabs.Screen
+        name="queue/index"
+        options={{
+          title: 'Queue',
+          tabBarLabel: 'Patient Queue',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="human-queue" size={26} color={color} />
+          ),
+        }}
+      />
+      
       <Tabs.Screen
         name="report/[id]"
         options={{
-          href: null, // This hides the tab from the bar
+          href: null,
         }}
       />
 
@@ -59,17 +68,18 @@ export default function DoctorLayout() {
         name="reports/index"
         options={{
           title: 'Reports',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="file-document-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="file-document-edit-outline" size={26} color={color} />
           ),
         }}
       />
+      
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-circle-outline" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="account-circle-outline" size={26} color={color} />
           ),
         }}
       />

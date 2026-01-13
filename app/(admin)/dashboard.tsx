@@ -1,7 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Directory based imports
@@ -14,7 +15,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
         totalDoctors: 0,
-        totalPatients: 124, 
+        totalPatients: 124,
         avgConsultation: '12m',
         activeDepartments: 5
     });
@@ -44,10 +45,10 @@ export default function AdminDashboard() {
             "Are you sure you want to logout?",
             [
                 { text: "Cancel", style: "cancel" },
-                { 
-                    text: "Logout", 
-                    style: "destructive", 
-                    onPress: () => router.replace('/(auth)/login') 
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: () => router.replace('/(auth)/login')
                 }
             ]
         );
@@ -63,17 +64,17 @@ export default function AdminDashboard() {
 
     return (
         <SafeAreaView style={{ backgroundColor: colors.background }} className="flex-1">
-            <StatusBar barStyle="dark-content" />
+            <StatusBar style="dark" />
 
             <ScrollView showsVerticalScrollIndicator={false} className="px-6">
 
                 {/* 1. Header Section */}
                 <View className="flex-row items-center justify-between mt-6 mb-8">
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         className="flex-row items-center"
                         onPress={() => router.push('/(admin)/profile')}
                     >
-                        <View 
+                        <View
                             className="w-12 h-12 rounded-full items-center justify-center border-2 border-white shadow-sm"
                             style={{ backgroundColor: colors.accent + '40', borderColor: colors.accent }}
                         >
@@ -97,41 +98,39 @@ export default function AdminDashboard() {
                     </TouchableOpacity>
                 </View>
 
-                {/* 2. Dynamic Stats Grid - FIXED ALIGNMENT */}
-                <View className="flex-row flex-wrap justify-between">
-                    
+                {/* 2. Dynamic Stats Grid - FIXED FOR 2 CARDS PER ROW */}
+                <View style={{ flexDirection: "row", justifyContent: 'space-between', flexWrap: 'wrap' }}>
+
                     {/* Card 1: Doctors */}
-                    <View style={{ width: '48%', marginBottom: 16 }}>
-                        <TouchableOpacity 
-                            activeOpacity={0.7}
-                            onPress={() => router.push('/(admin)/doctor')}
-                        >
-                            <StatCard
-                                title="Total Doctors"
-                                value={stats.totalDoctors.toString()}
-                                icon="doctor"
-                                color={colors.primary}
-                            />
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity
+                        style={{ width: '48%', marginBottom: 15 }} // Width 48% taake 2 cards barabar ayen
+                        activeOpacity={0.8}
+                        onPress={() => router.push('/(admin)/doctor')}
+                    >
+                        <StatCard
+                            title="Total Doctors"
+                            value={stats.totalDoctors.toString()}
+                            icon="doctor"
+                            color={colors.primary}
+                        />
+                    </TouchableOpacity>
 
                     {/* Card 2: Patients */}
-                    <View style={{ width: '48%', marginBottom: 16 }}>
-                        <TouchableOpacity 
-                            activeOpacity={0.7}
-                            onPress={() => router.push({ pathname: "/(admin)/patients" } as any)}
-                        >
-                            <StatCard
-                                title="Total Patients"
-                                value={stats.totalPatients.toString()}
-                                icon="account-group"
-                                color="#4CAF50"
-                            />
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity
+                        style={{ width: '48%', marginBottom: 15 }}
+                        activeOpacity={0.8}
+                        onPress={() => router.push({ pathname: "/(admin)/patients" } as any)}
+                    >
+                        <StatCard
+                            title="Total Patients"
+                            value={stats.totalPatients.toString()}
+                            icon="account-group"
+                            color="#4CAF50"
+                        />
+                    </TouchableOpacity>
 
                     {/* Card 3: Avg Time */}
-                    <View style={{ width: '48%', marginBottom: 16 }}>
+                    <View style={{ width: '48%', marginBottom: 15 }}>
                         <StatCard
                             title="Avg. Time (AI)"
                             value={stats.avgConsultation}
@@ -141,7 +140,7 @@ export default function AdminDashboard() {
                     </View>
 
                     {/* Card 4: Depts */}
-                    <View style={{ width: '48%', marginBottom: 16 }}>
+                    <View style={{ width: '48%', marginBottom: 15 }}>
                         <StatCard
                             title="Depts"
                             value={stats.activeDepartments.toString()}
@@ -174,13 +173,13 @@ export default function AdminDashboard() {
                                 params: { editData: null }
                             })}
                         />
-                        <div className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+                        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
                         <ActionItem
                             icon="shield-account-outline"
                             title="Manage Staff"
                             onPress={() => { }}
                         />
-                        <div className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+                        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
                         <ActionItem
                             icon="file-chart-outline"
                             title="System Analytics"

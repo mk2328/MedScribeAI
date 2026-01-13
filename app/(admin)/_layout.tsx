@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../src/theme/colors';
 
@@ -18,27 +18,34 @@ export default function AdminLayout() {
                 tabBarInactiveTintColor: colors.mutedText,
                 tabBarLabelStyle: {
                     fontSize: 10,
-                    fontWeight: '600',
-                    marginBottom: Platform.OS === 'android' ? 12 : 0,
+                    fontWeight: '700',
+                    // Label ko thoda aur upar kiya
+                    marginBottom: Platform.OS === 'android' ? 12 : 5,
                 },
                 tabBarStyle: {
                     backgroundColor: 'white',
                     borderTopColor: colors.accent,
-                    height: Platform.OS === 'ios' ? 65 + insets.bottom : 70,
-                    paddingTop: 5,
-                    paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
-                    elevation: 25,
+                    // Height ko 85 tak barhaya taake buttons ke liye clear space mil jaye
+                    height: Platform.OS === 'ios' ? 88 : 85,
+                    paddingTop: 10,
+                    // Android buttons ke liye kafi sari jagah niche chor di
+                    paddingBottom: Platform.OS === 'ios' ? insets.bottom : 25,
+                    elevation: 30,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: -4 },
                     shadowOpacity: 0.1,
                     shadowRadius: 10,
+                    position: 'absolute', // Isse layout overlap issues aksar hal ho jate hain
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
                 },
                 tabBarItemStyle: {
-                    paddingVertical: 5,
+                    // Content ko center se thoda upar rakha
+                    height: 50,
                 }
             }}
         >
-            {/* 1. Dashboard Tab */}
             <Tabs.Screen
                 name="dashboard"
                 options={{
@@ -46,30 +53,27 @@ export default function AdminLayout() {
                     tabBarIcon: ({ color, focused }) => (
                         <MaterialCommunityIcons
                             name={focused ? "home" : "home-outline"}
-                            size={24}
+                            size={26}
                             color={color}
                         />
                     ),
                 }}
             />
 
-            {/* 2. Doctors List Tab  */}
             <Tabs.Screen
                 name="doctor/index"
                 options={{
                     title: 'Doctors',
-                    tabBarLabel: 'Doctors',
                     tabBarIcon: ({ color, focused }) => (
                         <MaterialCommunityIcons
                             name={focused ? "account-group" : "account-group-outline"}
-                            size={24}
+                            size={26}
                             color={color}
                         />
                     ),
                 }}
             />
 
-            {/* 3. Add Doctor Tab */}
             <Tabs.Screen
                 name="doctor/add"
                 options={{
@@ -78,22 +82,27 @@ export default function AdminLayout() {
                     tabBarIcon: ({ color, focused }) => (
                         <MaterialCommunityIcons
                             name={focused ? "account-plus" : "account-plus-outline"}
-                            size={24}
+                            size={26}
                             color={color}
                         />
                     ),
-                    tabBarButton: (props: BottomTabBarButtonProps) => {
-                        const { children, onPress, accessibilityState, style } = props;
+                    tabBarButton: (props) => {
+                        // 1. Props ko destructure karein taake unnecessary null values filter ho jayein
+                        const { children, onPress, accessibilityState, style, ...rest } = props;
+
                         return (
                             <TouchableOpacity
+                                // accessibilityState aur style ko lazmi pass karein tab bar ki alignment ke liye
                                 accessibilityState={accessibilityState}
                                 style={style}
                                 activeOpacity={0.7}
                                 onPress={(e) => {
+                                    // Pehle apna custom navigation chalayein
                                     router.push({
                                         pathname: "/(admin)/doctor/add",
                                         params: { editData: null }
                                     });
+                                    // Phir tab bar ka default onPress (agar koi hai)
                                     onPress?.(e);
                                 }}
                             >
@@ -104,7 +113,6 @@ export default function AdminLayout() {
                 }}
             />
 
-            {/* 4. Reports Tab */}
             <Tabs.Screen
                 name="reports"
                 options={{
@@ -112,14 +120,13 @@ export default function AdminLayout() {
                     tabBarIcon: ({ color, focused }) => (
                         <MaterialCommunityIcons
                             name={focused ? "file-chart" : "file-chart-outline"}
-                            size={24}
+                            size={26}
                             color={color}
                         />
                     ),
                 }}
             />
 
-            {/* 5. Profile Tab */}
             <Tabs.Screen
                 name="profile"
                 options={{
@@ -127,31 +134,16 @@ export default function AdminLayout() {
                     tabBarIcon: ({ color, focused }) => (
                         <MaterialCommunityIcons
                             name={focused ? "account-circle" : "account-circle-outline"}
-                            size={24}
+                            size={26}
                             color={color}
                         />
                     ),
                 }}
             />
 
-            {/* --- HIDDEN SCREENS (Ye Tab Bar se hat jayengi) --- */}
-            
-            <Tabs.Screen
-                name="doctor/[id]"
-                options={{ href: null }}
-            />
-
-            {/* Patient List Screen Hide ki */}
-            <Tabs.Screen
-                name="patients/index"
-                options={{ href: null }}
-            />
-
-            {/* Patient Detail Screen Hide ki */}
-            <Tabs.Screen
-                name="patients/[id]"
-                options={{ href: null }}
-            />
+            <Tabs.Screen name="doctor/[id]" options={{ href: null }} />
+            <Tabs.Screen name="patients/index" options={{ href: null }} />
+            <Tabs.Screen name="patients/[id]" options={{ href: null }} />
         </Tabs>
     );
 }
