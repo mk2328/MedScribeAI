@@ -38,7 +38,6 @@ export default function AdminDashboard() {
         }
     };
 
-    // Logout Function
     const handleLogout = () => {
         Alert.alert(
             "Logout",
@@ -68,12 +67,11 @@ export default function AdminDashboard() {
 
             <ScrollView showsVerticalScrollIndicator={false} className="px-6">
 
-                {/* 1. Header with Profile & Logout */}
+                {/* 1. Header Section */}
                 <View className="flex-row items-center justify-between mt-6 mb-8">
-                    {/* Profile Section (Left) */}
                     <TouchableOpacity 
                         className="flex-row items-center"
-                        onPress={() => router.push('/(admin)/profile')} // Profile screen path
+                        onPress={() => router.push('/(admin)/profile')}
                     >
                         <View 
                             className="w-12 h-12 rounded-full items-center justify-center border-2 border-white shadow-sm"
@@ -91,7 +89,6 @@ export default function AdminDashboard() {
                         </View>
                     </TouchableOpacity>
 
-                    {/* Logout Button (Right) */}
                     <TouchableOpacity
                         onPress={handleLogout}
                         className="w-11 h-11 rounded-2xl items-center justify-center bg-red-50 border border-red-100 shadow-sm"
@@ -100,36 +97,62 @@ export default function AdminDashboard() {
                     </TouchableOpacity>
                 </View>
 
-                {/* 2. Dynamic Stats Grid */}
+                {/* 2. Dynamic Stats Grid - FIXED ALIGNMENT */}
                 <View className="flex-row flex-wrap justify-between">
-                    <StatCard
-                        title="Total Doctors"
-                        value={stats.totalDoctors.toString()}
-                        icon="doctor"
-                        color={colors.primary}
-                    />
-                    <StatCard
-                        title="Total Patients"
-                        value={stats.totalPatients.toString()}
-                        icon="account-group"
-                        color="#4CAF50"
-                    />
-                    <StatCard
-                        title="Avg. Time (AI)"
-                        value={stats.avgConsultation}
-                        icon="timer-outline"
-                        color="#FF9800"
-                    />
-                    <StatCard
-                        title="Depts"
-                        value={stats.activeDepartments.toString()}
-                        icon="hospital-building"
-                        color="#E91E63"
-                    />
+                    
+                    {/* Card 1: Doctors */}
+                    <View style={{ width: '48%', marginBottom: 16 }}>
+                        <TouchableOpacity 
+                            activeOpacity={0.7}
+                            onPress={() => router.push('/(admin)/doctor')}
+                        >
+                            <StatCard
+                                title="Total Doctors"
+                                value={stats.totalDoctors.toString()}
+                                icon="doctor"
+                                color={colors.primary}
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Card 2: Patients */}
+                    <View style={{ width: '48%', marginBottom: 16 }}>
+                        <TouchableOpacity 
+                            activeOpacity={0.7}
+                            onPress={() => router.push({ pathname: "/(admin)/patients" } as any)}
+                        >
+                            <StatCard
+                                title="Total Patients"
+                                value={stats.totalPatients.toString()}
+                                icon="account-group"
+                                color="#4CAF50"
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Card 3: Avg Time */}
+                    <View style={{ width: '48%', marginBottom: 16 }}>
+                        <StatCard
+                            title="Avg. Time (AI)"
+                            value={stats.avgConsultation}
+                            icon="timer-outline"
+                            color="#FF9800"
+                        />
+                    </View>
+
+                    {/* Card 4: Depts */}
+                    <View style={{ width: '48%', marginBottom: 16 }}>
+                        <StatCard
+                            title="Depts"
+                            value={stats.activeDepartments.toString()}
+                            icon="hospital-building"
+                            color="#E91E63"
+                        />
+                    </View>
                 </View>
 
                 {/* 3. AI Insights Card */}
-                <View className="mt-6 p-5 rounded-[32px] bg-blue-50 border border-blue-100">
+                <View className="mt-2 p-5 rounded-[32px] bg-blue-50 border border-blue-100">
                     <View className="flex-row items-center mb-2">
                         <MaterialCommunityIcons name="auto-fix" size={20} color={colors.primary} />
                         <Text className="ml-2 font-bold text-blue-800">AI System Health</Text>
@@ -139,7 +162,7 @@ export default function AdminDashboard() {
                     </Text>
                 </View>
 
-                {/* 4. Quick Management */}
+                {/* 4. Quick Actions */}
                 <View className="mt-6">
                     <Text style={{ color: colors.darkText }} className="text-lg font-bold mb-4">Quick Actions</Text>
                     <View className="bg-white rounded-[32px] p-2 shadow-sm border" style={{ borderColor: colors.accent }}>
@@ -151,13 +174,13 @@ export default function AdminDashboard() {
                                 params: { editData: null }
                             })}
                         />
-                        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+                        <div className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
                         <ActionItem
                             icon="shield-account-outline"
                             title="Manage Staff"
                             onPress={() => { }}
                         />
-                        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+                        <div className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
                         <ActionItem
                             icon="file-chart-outline"
                             title="System Analytics"
@@ -166,7 +189,7 @@ export default function AdminDashboard() {
                     </View>
                 </View>
 
-                {/* 5. Recent Activity */}
+                {/* 5. Live OPD Flow */}
                 <View className="mt-6 mb-10">
                     <Text style={{ color: colors.darkText }} className="text-lg font-bold mb-4">Live OPD Flow</Text>
                     <View className="bg-white rounded-3xl p-4 border border-slate-100 shadow-xs">

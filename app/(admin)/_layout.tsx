@@ -25,9 +25,9 @@ export default function AdminLayout() {
                     backgroundColor: 'white',
                     borderTopColor: colors.accent,
                     height: Platform.OS === 'ios' ? 65 + insets.bottom : 70,
-                    paddingTop: 8,
+                    paddingTop: 5,
                     paddingBottom: Platform.OS === 'ios' ? insets.bottom : 12,
-                    elevation: 20,
+                    elevation: 25,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: -4 },
                     shadowOpacity: 0.1,
@@ -84,7 +84,6 @@ export default function AdminLayout() {
                     ),
                     tabBarButton: (props: BottomTabBarButtonProps) => {
                         const { children, onPress, accessibilityState, style } = props;
-
                         return (
                             <TouchableOpacity
                                 accessibilityState={accessibilityState}
@@ -135,12 +134,23 @@ export default function AdminLayout() {
                 }}
             />
 
-            {/* Hidden Screens */}
+            {/* --- HIDDEN SCREENS (Ye Tab Bar se hat jayengi) --- */}
+            
             <Tabs.Screen
                 name="doctor/[id]"
-                options={{
-                    href: null, // Ye tab bar mein show nahi hoga
-                }}
+                options={{ href: null }}
+            />
+
+            {/* Patient List Screen Hide ki */}
+            <Tabs.Screen
+                name="patients/index"
+                options={{ href: null }}
+            />
+
+            {/* Patient Detail Screen Hide ki */}
+            <Tabs.Screen
+                name="patients/[id]"
+                options={{ href: null }}
             />
         </Tabs>
     );
