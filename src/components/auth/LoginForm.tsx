@@ -1,11 +1,13 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'; // Axios import kiya
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
-// 1. Import AsyncStorage
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MOCK_USERS } from '../../services/mockData';
+import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// Apne PC ka IPv4 address yahan likhein (ipconfig se check karein)
+const API_URL = "http://192.168.100.4:8001"; 
 
 const LoginForm = () => {
   const router = useRouter();
@@ -14,7 +16,7 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => { // Added async
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Fields cannot be empty");
       return;
@@ -22,33 +24,39 @@ const LoginForm = () => {
     
     setLoading(true);
 
-    // Simulate API delay
-    setTimeout(async () => {
-      const user = MOCK_USERS.find(u => 
-        u.email.toLowerCase() === email.toLowerCase() && 
-        u.password === password
-      );
+    try {
+      // Real API Call using Axios
+      const response = await axios.post(`${API_URL}/login`, {
+        email: email,
+        password: password
+      });
 
-      if (user) {
-        try {
-          // 2. Save user data to storage before navigating
-          await AsyncStorage.setItem('user_data', JSON.stringify(user));
-          
-          setLoading(false);
-          if (user.role === 'admin') {
-            router.replace('/(admin)/dashboard');
-          } else {
-            router.replace('/(doctor)/dashboard');
-          }
-        } catch (error) {
-          setLoading(false);
-          Alert.alert("Login Error", "Could not save session.");
-        }
-      } else {
+      if (response.data.status === "success") {
+        const userData = response.data.user;
+
+        // 1. Save Real User Data (ID, Name, Role) to AsyncStorage
+        await AsyncStorage.setItem('user_data', JSON.stringify(userData));
+        
         setLoading(false);
-        Alert.alert("Invalid Credentials", "Please check your email and password.");
+
+        // 2. Role-based Navigation as per ERD [cite: 1]
+        const role = userData.role.toLowerCase();
+        
+        if (role === 'admin') {
+          router.replace('/(admin)/dashboard');
+        } else if (role === 'doctor') {
+          router.replace('/(doctor)/dashboard');
+        } else {
+          Alert.alert("Access Denied", "Unauthorized role.");
+        }
       }
-    }, 800);
+    } catch (error: any) {
+      setLoading(false);
+      // Backend se aane wala error message dikhane ke liye
+      const errorDetail = error.response?.data?.detail || "Something went wrong. Check connection.";
+      Alert.alert("Login Failed", errorDetail);
+      console.error("Login Error:", error);
+    }
   };
 
   return (
