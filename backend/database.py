@@ -1,15 +1,16 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
 
-DATABASE_URL = "postgresql://postgres.dcuscebijrddltgragcb:LsEFWBdiml6ukeOV@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require"
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres.dcuscebijrddltgragcb:LsEFWBdiml6ukeOV@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require")
 
 engine = create_engine(
     DATABASE_URL,
-    pool_size=10,          # Keep 10 connections always open
-    max_overflow=20,       # Allow 20 extra if needed
-    pool_pre_ping=True,    # Check connection before using
-    pool_recycle=300,      # Recycle connections every 5 mins
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=300,
     connect_args={
         "connect_timeout": 10,
         "keepalives": 1,
