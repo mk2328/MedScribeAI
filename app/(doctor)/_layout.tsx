@@ -18,7 +18,6 @@ export default function DoctorLayout() {
           backgroundColor: 'white',
           borderTopWidth: 1,
           borderTopColor: '#f1f5f9',
-          // FIXED: Height aur Padding ko buttons se upar karne ke liye adjust kiya
           height: Platform.OS === 'ios' ? 85 : 80, 
           paddingTop: 10,
           paddingBottom: Platform.OS === 'ios' ? insets.bottom : 20, 
@@ -39,24 +38,36 @@ export default function DoctorLayout() {
         name="dashboard"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="home-variant" size={26} color={color} />
           ),
         }}
       />
       
-      {/* FIXED: Patient Queue Icon and Label */}
+      {/* 1. NAYA TAB: Record (Isse error khatam ho jayega) */}
+      <Tabs.Screen
+        name="record/index"
+        options={{
+          title: 'Record',
+          tabBarLabel: 'Voice Record',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="microphone" size={26} color={color} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="queue/index"
         options={{
           title: 'Queue',
-          tabBarLabel: 'Patient Queue',
+          tabBarLabel: 'Queue',
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="human-queue" size={26} color={color} />
           ),
         }}
       />
       
+      {/* Hidden Screens */}
       <Tabs.Screen
         name="report/[id]"
         options={{
@@ -64,16 +75,6 @@ export default function DoctorLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="reports/index"
-        options={{
-          title: 'Reports',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="file-document-edit-outline" size={26} color={color} />
-          ),
-        }}
-      />
-      
       <Tabs.Screen
         name="profile"
         options={{
