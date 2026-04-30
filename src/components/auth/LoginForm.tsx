@@ -6,8 +6,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../theme/colors';
 
-// Apne PC ka IPv4 address yahan likhein (ipconfig se check karein)
-const API_URL = "http://192.168.1.105:8000";
+const API_URL = "https://medscribeai-pzqu.onrender.com";
 
 const LoginForm = () => {
   const router = useRouter();
