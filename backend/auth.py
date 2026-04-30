@@ -1,12 +1,12 @@
-from passlib.context import CryptContext
+import bcrypt
 
-# Bcrypt algorithm ka setup
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def get_password_hash(password: str) -> str:
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
-# 1. Plain password ko hash karne ke liye (Jab user create hoga)
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-# 2. Login ke waqt password verify karne ke liye
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
