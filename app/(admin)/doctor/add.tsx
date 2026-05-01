@@ -102,6 +102,7 @@ export default function AddDoctor() {
                     email: form.email,
                     phone: form.phone,
                     password: form.password,
+                    role: "doctor",
                 },
                 specialization: form.specialization,
                 experience_years: parseInt(form.experience) || 0,
