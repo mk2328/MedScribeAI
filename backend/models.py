@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum
 from sqlalchemy.orm import relationship
 from database import Base
 import datetime
@@ -65,14 +65,31 @@ class Appointment(Base):
 class Consultation(Base):
     __tablename__ = "consultations"
     consultation_id = Column(Integer, primary_key=True, index=True)
-    appointment_id = Column(Integer, ForeignKey("appointments.appointment_id"))
-    audio_recording_url = Column(String(255))
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    appointment_id   = Column(Integer, ForeignKey("appointments.appointment_id"), nullable=True)
+    doctor_id        = Column(Integer, ForeignKey("doctors.doctor_id"), nullable=True)
+    audio_recording_url = Column(Text)
+    audio_file_path     = Column(Text)
+    file_name           = Column(String(255))
+    status              = Column(String(50), default="queued")
+    
+    # === NEW COLUMNS FOR PROGRESS TRACKING ===
+    processing_step     = Column(String(50), nullable=True)      # e.g., "cleaning", "transcribing", "generating"
+    progress_message    = Column(Text, nullable=True)
+    progress_percent    = Column(Integer, default=0)
+    
+    soap_note           = Column(Text)
+    transcript          = Column(Text)
+    corrected_transcript = Column(Text)
+    error_message       = Column(Text)
+    created_at          = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at          = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-    appointment = relationship("Appointment", back_populates="consultation")
+    # Relationships
+    appointment  = relationship("Appointment", back_populates="consultation")
     transcription = relationship("Transcription", back_populates="consultation", uselist=False)
-    soap_report = relationship("SOAPReport", back_populates="consultation", uselist=False)
+    soap_report   = relationship("SOAPReport", back_populates="consultation", uselist=False)
 
+    
 class Transcription(Base):
     __tablename__ = "transcriptions"
     transcription_id = Column(Integer, primary_key=True, index=True)
@@ -85,13 +102,14 @@ class Transcription(Base):
 
 class SOAPReport(Base):
     __tablename__ = "soap_reports"
-    soap_id = Column(Integer, primary_key=True, index=True)
+    soap_id        = Column(Integer, primary_key=True, index=True)
     consultation_id = Column(Integer, ForeignKey("consultations.consultation_id"))
-    subjective = Column(Text)
-    objective = Column(Text)
-    assessment = Column(Text)
-    plan = Column(Text)
-    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+    subjective     = Column(Text)
+    objective      = Column(Text)
+    assessment     = Column(Text)
+    plan           = Column(Text)
+    full_soap_note = Column(Text)   # MedGemma + Groq endorsed complete note
+    generated_at   = Column(DateTime, default=datetime.datetime.utcnow)
 
     consultation = relationship("Consultation", back_populates="soap_report")
 

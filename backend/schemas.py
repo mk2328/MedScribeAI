@@ -1,87 +1,80 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+import datetime
 
-# --- User Schemas ---
-class UserBase(BaseModel):
-    name: str
-    email: EmailStr
-    username: str
-    phone: Optional[str] = None
-    role: Optional[str] = None
 
-    @field_validator('username')
-    @classmethod
-    def username_no_spaces(cls, v: str) -> str:
-        return v.replace(' ', '_').lower()
+# ── Auth & User Schemas ──────────────────────────────────────
 
-class UserCreate(UserBase):
-    password: str
-
-class UserResponse(UserBase):
-    user_id: int
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-# --- Login Schema ---
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
-# --- Receptionist Schemas ---
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    username: str
+    password: str
+    phone: Optional[str] = None
+
+
+class DoctorCreate(BaseModel):
+    user_data: UserCreate
+    specialization: Optional[str] = None
+    experience_years: Optional[int] = None
+    availability_status: Optional[str] = "available"
+
+
 class ReceptionistCreate(BaseModel):
     user_data: UserCreate
 
-class ReceptionistResponse(BaseModel):
-    receptionist_id: int
-    user: UserResponse
+
+class DoctorResponse(BaseModel):
+    doctor_id: int
+    user_id: int
+    specialization: Optional[str]
+    experience_years: Optional[int]
+    availability_status: Optional[str]
 
     class Config:
         from_attributes = True
 
-# --- Doctor Schemas ---
-class DoctorBase(BaseModel):
-    specialization: str
-    experience_years: int
-    availability_status: Optional[str] = "available"
 
-class DoctorCreate(DoctorBase):
-    user_data: UserCreate
-    specialization: str
-    experience_years: int
+# ── Audio Processing Schemas ─────────────────────────────────
 
-class DoctorResponse(DoctorBase):
-    doctor_id: int
-    user: UserResponse
+class AudioProcessRequest(BaseModel):
+    audio_url: str
+    audio_file_path: str
+    file_name: str
+    doctor_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
 
-# --- Appointment & Consultation Schemas ---
-class AppointmentBase(BaseModel):
-    patient_id: int
-    doctor_id: int
-    scheduled_time: datetime
-    status: str = "pending"
-
-class ConsultationResponse(BaseModel):
+class ConsultationStatusResponse(BaseModel):
     consultation_id: int
-    appointment_id: int
-    audio_recording_url: Optional[str]
-    created_at: datetime
+    status: str
+    file_name: Optional[str] = None
+    created_at: Optional[datetime.datetime] = None
+    updated_at: Optional[datetime.datetime] = None
+    error_message: Optional[str] = None
+    soap_note: Optional[str] = None
+    transcript: Optional[str] = None
+    processing_step: Optional[str] = None
+    progress_message: Optional[str] = None
+    progress_percent: Optional[int] = 0
 
     class Config:
         from_attributes = True
 
-# --- SOAP & Transcription Schemas ---
-class SOAPResponse(BaseModel):
-    soap_id: int
-    subjective: str
-    objective: str
-    assessment: str
-    plan: str
 
-    class Config:
-        from_attributes = True
+class ConsultationSoapResponse(BaseModel):
+    consultation_id: int
+    status: str
+    soap_note: Optional[str] = None
+    transcript: Optional[str] = None
+    file_name: Optional[str] = None
+    created_at: Optional[datetime.datetime] = None
+
+
+class ApproveSOAPRequest(BaseModel):
+    approved_soap: str
+    doctor_id: Optional[int] = None
