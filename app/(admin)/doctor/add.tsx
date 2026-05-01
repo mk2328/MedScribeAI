@@ -82,7 +82,7 @@ export default function AddDoctor() {
 
     const handleRegisterOrUpdate = async () => {
         if (!form.name || !form.username || !form.email || (!isEditMode && !form.password) || !form.phone || Object.keys(form.schedule).length === 0) {
-            Alert.alert("Required", "Please fill all required fields.");
+            Alert.alert("Required", "Please fill all required fields, including working days.");
             return;
         }
 
@@ -94,6 +94,7 @@ export default function AddDoctor() {
         setLoading(true);
 
         try {
+            // FIXED: Included 'schedule' in the payload
             const payload = {
                 user_data: {
                     name: form.name,
@@ -104,9 +105,9 @@ export default function AddDoctor() {
                 },
                 specialization: form.specialization,
                 experience_years: parseInt(form.experience) || 0,
+                schedule: form.schedule, 
             };
 
-            // Log what we're sending
             console.log("Sending payload:", JSON.stringify(payload));
 
             const response = await fetch(`${API_URL}/admin/add-doctor`, {
@@ -129,8 +130,6 @@ export default function AddDoctor() {
                 return;
             }
 
-            console.log("Parsed response:", JSON.stringify(data));
-
             if (response.ok) {
                 setLoading(false);
                 Alert.alert(
@@ -140,8 +139,6 @@ export default function AddDoctor() {
                 );
             } else {
                 setLoading(false);
-
-                // Handle ALL possible error formats
                 let errorMsg = "Something went wrong.";
 
                 if (data.detail) {
@@ -285,7 +282,7 @@ export default function AddDoctor() {
                             icon="at"
                             placeholder="sarah_ahmed123"
                             value={form.username}
-                            onChange={(v: string) => setForm({ ...form, username: v.replace(/\s/g, '_').toLowerCase() })}
+                            onChange={(v: string) => setForm({ ...form, username: v.toLowerCase().trim().replace(/\s+/g, '_') })}
                         />
 
                         <View>
