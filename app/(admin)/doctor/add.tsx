@@ -94,7 +94,7 @@ export default function AddDoctor() {
         setLoading(true);
 
         try {
-            // FIXED: Included 'schedule' in the payload
+            
             const payload = {
                 user_data: {
                     name: form.name,
