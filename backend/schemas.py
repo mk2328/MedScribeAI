@@ -1,17 +1,22 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
 from datetime import datetime
 
 # --- User Schemas ---
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    username: str # Required for creation to stay unique in DB
+    username: str
     phone: Optional[str] = None
-    role: str # admin, doctor, patient, receptionist
+    role: Optional[str] = None
+
+    @field_validator('username')
+    @classmethod
+    def username_no_spaces(cls, v: str) -> str:
+        return v.replace(' ', '_').lower()
 
 class UserCreate(UserBase):
-    password: str 
+    password: str
 
 class UserResponse(UserBase):
     user_id: int
@@ -20,7 +25,7 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-# --- Login Schema (Email & Password Only) ---
+# --- Login Schema ---
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
