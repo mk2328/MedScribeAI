@@ -80,21 +80,6 @@ export default function AddDoctor() {
         setForm({ ...form, schedule: { ...form.schedule, [day]: timeStr } });
     };
 
-    // Helper to extract error message safely
-    const getErrorMessage = (detail: any): string => {
-        if (!detail) return "Something went wrong.";
-        if (typeof detail === 'string') return detail;
-        if (Array.isArray(detail)) {
-            return detail.map((e: any) => {
-                if (typeof e === 'string') return e;
-                if (e?.msg) return e.msg;
-                if (e?.message) return e.message;
-                return JSON.stringify(e);
-            }).join('\n');
-        }
-        return JSON.stringify(detail);
-    };
-
     const handleRegisterOrUpdate = async () => {
         if (!form.name || !form.username || !form.email || (!isEditMode && !form.password) || !form.phone || Object.keys(form.schedule).length === 0) {
             Alert.alert("Required", "Please fill all required fields.");
@@ -109,25 +94,42 @@ export default function AddDoctor() {
         setLoading(true);
 
         try {
+            const payload = {
+                user_data: {
+                    name: form.name,
+                    username: form.username,
+                    email: form.email,
+                    phone: form.phone,
+                    password: form.password,
+                },
+                specialization: form.specialization,
+                experience_years: parseInt(form.experience) || 0,
+            };
+
+            // Log what we're sending
+            console.log("Sending payload:", JSON.stringify(payload));
+
             const response = await fetch(`${API_URL}/admin/add-doctor`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    user_data: {
-                        name: form.name,
-                        username: form.username,
-                        email: form.email,
-                        phone: form.phone,
-                        password: form.password,
-                    },
-                    specialization: form.specialization,
-                    experience_years: parseInt(form.experience) || 0,
-                }),
+                body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
+            const responseText = await response.text();
+            console.log("Raw response:", responseText);
+
+            let data: any = {};
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                setLoading(false);
+                Alert.alert("Error", responseText || "Unknown error");
+                return;
+            }
+
+            console.log("Parsed response:", JSON.stringify(data));
 
             if (response.ok) {
                 setLoading(false);
@@ -138,15 +140,38 @@ export default function AddDoctor() {
                 );
             } else {
                 setLoading(false);
-                const errorMsg = getErrorMessage(data.detail);
+
+                // Handle ALL possible error formats
+                let errorMsg = "Something went wrong.";
+
+                if (data.detail) {
+                    if (typeof data.detail === 'string') {
+                        errorMsg = data.detail;
+                    } else if (Array.isArray(data.detail)) {
+                        errorMsg = data.detail
+                            .map((e: any) => {
+                                const field = e.loc ? e.loc.join(' → ') : '';
+                                const msg = e.msg || e.message || JSON.stringify(e);
+                                return field ? `${field}: ${msg}` : msg;
+                            })
+                            .join('\n');
+                    } else {
+                        errorMsg = JSON.stringify(data.detail);
+                    }
+                } else if (data.message) {
+                    errorMsg = data.message;
+                }
+
                 Alert.alert("Error", errorMsg);
             }
 
         } catch (error: any) {
             setLoading(false);
-            const detail = error?.response?.data?.detail;
-            const errorMsg = getErrorMessage(detail) || "Server is waking up. Please wait 30 seconds and try again.";
-            Alert.alert("Connection Error", errorMsg);
+            console.log("Fetch error:", error);
+            Alert.alert(
+                "Connection Error",
+                "Cannot connect to server. Please check internet and try again."
+            );
         }
     };
 
