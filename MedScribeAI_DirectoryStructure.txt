@@ -1,0 +1,32 @@
+MediFlowAI/
+├── app/                        # 🟢 ONLY Routing (Expo Router)
+│   ├── _layout.tsx             # Main entry (Provider wrapper)
+│   ├── index.tsx               # Entry redirect (checks if logged in)
+│   ├── (auth)/                 # Authentication Group
+│   │   ├── _layout.tsx
+│   │   ├── login.tsx
+│   │   └── signup.tsx
+│   ├── (doctor)/               # Doctor Role Group
+│   │   ├── _layout.tsx         # Bottom Tabs logic
+│   │   ├── dashboard.tsx
+│   │   └── consultation.tsx
+│   ├── (receptionist)/         # Receptionist Role Group
+│   │   ├── _layout.tsx
+│   │   └── registration.tsx
+│   └── (admin)/                # Admin Role Group
+│       ├── _layout.tsx
+│       └── analytics.tsx
+│
+├── src/                        # 🔵 Core Logic (Not routes)
+│   ├── components/             # Reusable UI
+│   │   ├── ui/                 # Basic: Button.tsx, Input.tsx, Card.tsx
+│   │   └── shared/             # Complex: Header.tsx, PatientCard.tsx
+│   ├── hooks/                  # Custom logic (useAuth.ts, useAudio.ts)
+│   ├── services/               # API & AI calls (api.ts, aiService.ts)
+│   ├── store/                  # State management (Zustand or Context)
+│   ├── theme/                  # Colors.ts, Typography.ts
+│   └── utils/                  # Helpers (formatters.ts, validators.ts)
+│
+├── assets/                     # 🟡 Images, Fonts, Icons
+├── app.json                    # Expo Config
+└── package.json
