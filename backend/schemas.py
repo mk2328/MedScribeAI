@@ -109,3 +109,31 @@ class DashboardStatsResponse(BaseModel):
     in_queue: int
     appointments_today: int
     avg_wait_minutes: Optional[int] = None
+
+class QueuePatientResponse(BaseModel):
+    patient_id: int
+    patient_code: Optional[str]
+    name: str
+    age: Optional[int]
+    gender: Optional[str]
+    department: Optional[str]
+    status: Optional[str]
+    doctor_name: Optional[str] = None
+    created_at: Optional[datetime.datetime]
+
+    class Config:
+        from_attributes = True
+
+class PatientListResponse(BaseModel):
+    patient_id: int
+    name: str
+    patient_code: Optional[str]
+    age: Optional[int]
+    phone: Optional[str]
+    department: Optional[str]
+    status: Optional[str]
+    created_at: Optional[datetime.datetime]
+    visit_count: int = 0
+
+    class Config:
+        from_attributes = True

@@ -330,6 +330,38 @@ def get_consultation_status(consultation_id: int, db: Session = Depends(get_db))
 
     return response
 
+@app.get("/patients", response_model=List[schemas.PatientListResponse])
+def search_patients(search: Optional[str] = "", db: Session = Depends(get_db)):
+    query = db.query(models.Patient)
+
+    if search:
+        like_pattern = f"%{search}%"
+        query = query.filter(
+            (models.Patient.name.ilike(like_pattern)) |
+            (models.Patient.patient_code.ilike(like_pattern)) |
+            (models.Patient.phone.ilike(like_pattern))
+        )
+
+    patients = query.order_by(models.Patient.created_at.desc()).all()
+
+    results = []
+    for p in patients:
+        visit_count = db.query(models.Appointment).filter(
+            models.Appointment.patient_id == p.patient_id
+        ).count()
+        results.append({
+            "patient_id": p.patient_id,
+            "name": p.name,
+            "patient_code": p.patient_code,
+            "age": p.age,
+            "phone": p.phone,
+            "department": p.department,
+            "status": p.status,
+            "created_at": p.created_at,
+            "visit_count": visit_count,
+        })
+
+    return results
 
 @app.get("/consultation/{consultation_id}/soap")
 def get_soap_note(consultation_id: int, db: Session = Depends(get_db)):
@@ -383,7 +415,29 @@ def get_soap_report_detail(consultation_id: int, db: Session = Depends(get_db)):
         "generated_at":    report.generated_at,
     }
 
+@app.get("/patients/queue", response_model=List[schemas.QueuePatientResponse])
+def get_patient_queue(db: Session = Depends(get_db)):
+    patients = db.query(models.Patient).order_by(models.Patient.created_at.asc()).all()
 
+    results = []
+    for p in patients:
+        doctor_name = None
+        if p.assigned_doctor and p.assigned_doctor.user:
+            doctor_name = p.assigned_doctor.user.name
+
+        results.append({
+            "patient_id": p.patient_id,
+            "patient_code": p.patient_code,
+            "name": p.name,
+            "age": p.age,
+            "gender": p.gender,
+            "department": p.department,
+            "status": p.status,
+            "doctor_name": doctor_name,
+            "created_at": p.created_at,
+        })
+
+    return results
 # ====================== DOCTOR APPROVE / REJECT ENDPOINTS ======================
 
 @app.post("/consultation/{consultation_id}/approve")
