@@ -78,3 +78,34 @@ class ConsultationSoapResponse(BaseModel):
 class ApproveSOAPRequest(BaseModel):
     approved_soap: str
     doctor_id: Optional[int] = None
+
+# ── Patient / Receptionist Schemas ───────────────────────────
+
+class PatientRegister(BaseModel):
+    name: str
+    phone: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    marital_status: Optional[str] = None
+    department: Optional[str] = None
+    assigned_doctor_id: Optional[int] = None
+    registered_by: Optional[int] = None  # receptionist_id
+
+
+class PatientResponse(BaseModel):
+    patient_id: int
+    name: str
+    patient_code: Optional[str]
+    department: Optional[str]
+    status: Optional[str]
+    created_at: Optional[datetime.datetime]
+
+    class Config:
+        from_attributes = True
+
+
+class DashboardStatsResponse(BaseModel):
+    registered_today: int
+    in_queue: int
+    appointments_today: int
+    avg_wait_minutes: Optional[int] = None

@@ -6,6 +6,8 @@ import httpx, os, datetime, re
 from database import engine, get_db, Base
 import models, schemas
 from auth import get_password_hash, verify_password
+from sqlalchemy import func
+
 
 # Initialize Database
 models.Base.metadata.create_all(bind=engine)
@@ -98,14 +100,22 @@ def login(request: schemas.LoginRequest, db: Session = Depends(get_db)):
     if not verify_password(request.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
+    user_response = {
+        "user_id": user.user_id,
+        "name":    user.name,
+        "email":   user.email,
+        "role":    user.role.lower()
+    }
+
+    # Attach role-specific profile IDs so the frontend can use them later
+    if user.role.lower() == "receptionist" and user.receptionist_profile:
+        user_response["receptionist_id"] = user.receptionist_profile.receptionist_id
+    elif user.role.lower() == "doctor" and user.doctor_profile:
+        user_response["doctor_id"] = user.doctor_profile.doctor_id
+
     return {
         "status": "success",
-        "user": {
-            "user_id": user.user_id,
-            "name":    user.name,
-            "email":   user.email,
-            "role":    user.role.lower()
-        }
+        "user": user_response
     }
 
 
@@ -507,6 +517,74 @@ def get_doctor_consultations(doctor_id: int, db: Session = Depends(get_db)):
         for c in consultations
     ]
 
+
+# ====================== RECEPTIONIST ENDPOINTS ======================
+
+@app.post("/receptionist/register-patient", response_model=schemas.PatientResponse)
+def register_patient(patient_in: schemas.PatientRegister, db: Session = Depends(get_db)):
+    # Generate patient_code like P-2024-016 based on year + current count
+    year = datetime.datetime.utcnow().year
+    count_this_year = db.query(models.Patient).filter(
+        models.Patient.patient_code.like(f"P-{year}-%")
+    ).count()
+    new_code = f"P-{year}-{str(count_this_year + 1).zfill(3)}"
+
+    status_value = "assigned" if patient_in.assigned_doctor_id else "waiting"
+
+    new_patient = models.Patient(
+        name=patient_in.name,
+        phone=patient_in.phone,
+        patient_code=new_code,
+        age=patient_in.age,
+        gender=patient_in.gender,
+        marital_status=patient_in.marital_status,
+        department=patient_in.department,
+        assigned_doctor_id=patient_in.assigned_doctor_id,
+        registered_by=patient_in.registered_by,
+        status=status_value,
+    )
+    db.add(new_patient)
+    db.commit()
+    db.refresh(new_patient)
+    return new_patient
+
+
+@app.get("/patients/recent", response_model=List[schemas.PatientResponse])
+def get_recent_patients(limit: int = 5, db: Session = Depends(get_db)):
+    return db.query(models.Patient).order_by(
+        models.Patient.created_at.desc()
+    ).limit(limit).all()
+
+
+@app.get("/dashboard/receptionist-stats", response_model=schemas.DashboardStatsResponse)
+def get_receptionist_stats(db: Session = Depends(get_db)):
+    today_start = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    registered_today = db.query(models.Patient).filter(
+        models.Patient.created_at >= today_start
+    ).count()
+
+    in_queue = db.query(models.Patient).filter(
+        models.Patient.status == "waiting"
+    ).count()
+
+    appointments_today = db.query(models.Appointment).filter(
+        models.Appointment.scheduled_time >= today_start
+    ).count()
+
+    return {
+        "registered_today": registered_today,
+        "in_queue": in_queue,
+        "appointments_today": appointments_today,
+        "avg_wait_minutes": None,  # needs real check-in/seen timestamps — skipping for now
+    }
+
+
+@app.get("/doctor/{doctor_id}/patients", response_model=List[schemas.PatientResponse])
+def get_doctor_patients(doctor_id: int, db: Session = Depends(get_db)):
+    return db.query(models.Patient).filter(
+        models.Patient.assigned_doctor_id == doctor_id
+    ).order_by(models.Patient.created_at.desc()).all()
 
 # ====================== TEMPORARY ADMIN SETUP ======================
 

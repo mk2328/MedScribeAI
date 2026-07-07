@@ -30,13 +30,26 @@ class Receptionist(Base):
 class Patient(Base):
     __tablename__ = "patients"
     patient_id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=True)
+
+    # Walk-in registration fields (no login account required)
+    name = Column(String(255), nullable=False)
+    phone = Column(String(20))
+    patient_code = Column(String(50), unique=True, index=True)  # e.g. P-2024-015
+
     age = Column(Integer)
     gender = Column(String(20))
     marital_status = Column(String(50))
 
+    department = Column(String(255))
+    status = Column(String(50), default="waiting")  # waiting | assigned
+    assigned_doctor_id = Column(Integer, ForeignKey("doctors.doctor_id"), nullable=True)
+    registered_by = Column(Integer, ForeignKey("receptionists.receptionist_id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
     user = relationship("User", back_populates="patient_profile")
     appointments = relationship("Appointment", back_populates="patient")
+    assigned_doctor = relationship("Doctor", foreign_keys=[assigned_doctor_id])
 
 class Doctor(Base):
     __tablename__ = "doctors"

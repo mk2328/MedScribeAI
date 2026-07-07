@@ -7,6 +7,8 @@ import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } fro
 import { colors } from '../../theme/colors';
 
 const API_URL = "https://medscribeai-pzqu.onrender.com";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 6;
 
 const LoginForm = () => {
   const router = useRouter();
@@ -16,6 +18,8 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [serverStatus, setServerStatus] = useState('checking');
   // checking | ready | offline
+
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   // Wake up Render server when login screen opens
   useEffect(() => {
@@ -31,9 +35,28 @@ const LoginForm = () => {
     wakeUpServer();
   }, []);
 
+  const validate = () => {
+    const newErrors: { email?: string; password?: string } = {};
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      newErrors.email = "Email is required.";
+    } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+      newErrors.email = "Enter a valid email address.";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required.";
+    } else if (password.length < MIN_PASSWORD_LENGTH) {
+      newErrors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Fields cannot be empty");
+    if (!validate()) {
       return;
     }
 
@@ -42,20 +65,25 @@ const LoginForm = () => {
       return;
     }
 
+    if (serverStatus === 'offline') {
+      Alert.alert("Server Offline", "Cannot reach the server. Check your internet connection and try again.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await axios.post(`${API_URL}/login`, {
-        email: email,
+        email: email.trim().toLowerCase(),
         password: password
       });
+
+      setLoading(false);
 
       if (response.data.status === "success") {
         const userData = response.data.user;
 
         await AsyncStorage.setItem('user_data', JSON.stringify(userData));
-
-        setLoading(false);
 
         const role = userData.role.toLowerCase();
 
@@ -64,16 +92,32 @@ const LoginForm = () => {
         } else if (role === 'doctor') {
           router.replace('/(doctor)/dashboard');
         } else if (role === 'receptionist') {
-          router.replace('/(receptionist)/dashboard'); 
+          router.replace('/(receptionist)/dashboard');
         } else {
           Alert.alert("Access Denied", "Unauthorized role.");
         }
+      } else {
+        // Backend responded with 200 OK but status !== "success"
+        // (e.g. { status: "fail", message: "Invalid credentials" })
+        const failMessage =
+          response.data.message || response.data.detail || "Invalid email or password.";
+        Alert.alert("Login Failed", failMessage);
       }
-   } catch (error: any) {
+    } catch (error: any) {
       setLoading(false);
-      const errorDetail = error.response?.data?.detail || "Server is waking up. Please try again in 30 seconds.";
+
+      // Log the raw error so we can see exactly what the backend sends back
+      console.log("Login error status:", error.response?.status);
+      console.log("Login error data:", JSON.stringify(error.response?.data, null, 2));
+
+      const errorDetail =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        (error.response?.status === 401 || error.response?.status === 403
+          ? "Invalid email or password."
+          : "Server is waking up. Please try again in 30 seconds.");
+
       Alert.alert("Login Failed", errorDetail);
-      console.error("Login Error:", error);
     }
   };
 
@@ -109,45 +153,62 @@ const LoginForm = () => {
       )}
 
       {/* Email Input */}
-      <View className="relative">
-        <TextInput
-          placeholder="Email Address"
-          placeholderTextColor={colors.mutedText}
-          value={email}
-          onChangeText={setEmail}
-          style={{ borderColor: colors.accent, color: colors.darkText }}
-          className="bg-white p-4 pl-12 rounded-2xl border"
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        <View className="absolute left-4 top-4">
-          <MaterialCommunityIcons name="email-outline" size={20} color={colors.mutedText} />
+      <View>
+        <View className="relative">
+          <TextInput
+            placeholder="Email Address"
+            placeholderTextColor={colors.mutedText}
+            value={email}
+            onChangeText={(val) => {
+              setEmail(val);
+              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+            }}
+            style={{ borderColor: errors.email ? '#EF4444' : colors.accent, color: colors.darkText }}
+            className="bg-white p-4 pl-12 rounded-2xl border"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+          />
+          <View className="absolute left-4 top-4">
+            <MaterialCommunityIcons name="email-outline" size={20} color={colors.mutedText} />
+          </View>
         </View>
+        {errors.email && (
+          <Text className="text-red-500 text-xs mt-1 ml-1">{errors.email}</Text>
+        )}
       </View>
 
       {/* Password Input */}
-      <View className="relative">
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor={colors.mutedText}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          style={{ borderColor: colors.accent, color: colors.darkText }}
-          className="bg-white p-4 pl-12 rounded-2xl border"
-        />
-        <View className="absolute left-4 top-4">
-          <MaterialCommunityIcons name="lock-outline" size={20} color={colors.mutedText} />
-        </View>
-        <TouchableOpacity
-          onPress={() => setShowPassword(!showPassword)}
-          className="absolute right-4 top-4"
-        >
-          <MaterialCommunityIcons
-            name={showPassword ? "eye-off-outline" : "eye-outline"}
-            size={20} color={colors.mutedText}
+      <View>
+        <View className="relative">
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor={colors.mutedText}
+            value={password}
+            onChangeText={(val) => {
+              setPassword(val);
+              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+            }}
+            secureTextEntry={!showPassword}
+            style={{ borderColor: errors.password ? '#EF4444' : colors.accent, color: colors.darkText }}
+            className="bg-white p-4 pl-12 rounded-2xl border"
           />
-        </TouchableOpacity>
+          <View className="absolute left-4 top-4">
+            <MaterialCommunityIcons name="lock-outline" size={20} color={colors.mutedText} />
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-4"
+          >
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={20} color={colors.mutedText}
+            />
+          </TouchableOpacity>
+        </View>
+        {errors.password && (
+          <Text className="text-red-500 text-xs mt-1 ml-1">{errors.password}</Text>
+        )}
       </View>
 
       {/* Sign In Button */}

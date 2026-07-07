@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const { height: screenHeight } = Dimensions.get('window');
+const API_URL = "https://medscribeai-pzqu.onrender.com";
 
 const RegisterPatient = () => {
   const router = useRouter();
@@ -13,7 +16,61 @@ const RegisterPatient = () => {
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState('Male');
   const [maritalStatus, setMaritalStatus] = useState('Single');
-  const [chiefComplaint, setChiefComplaint] = useState('');
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!fullName.trim() || fullName.trim().length < 3) {
+      newErrors.fullName = "Enter the patient's full name (min 3 characters).";
+    }
+    if (!age.trim() || isNaN(Number(age)) || Number(age) <= 0 || Number(age) > 120) {
+      newErrors.age = "Enter a valid age.";
+    }
+    if (phone.trim() && !/^[0-9+\-\s]{7,15}$/.test(phone.trim())) {
+      newErrors.phone = "Enter a valid phone number.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) {
+      Alert.alert("Missing Information", "Please fix the highlighted fields.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const userDataRaw = await AsyncStorage.getItem('user_data');
+      const userData = userDataRaw ? JSON.parse(userDataRaw) : null;
+      const receptionistId = userData?.receptionist_id ?? null;
+
+      const response = await axios.post(`${API_URL}/receptionist/register-patient`, {
+        name: fullName.trim(),
+        age: Number(age),
+        phone: phone.trim() || null,
+        gender,
+        marital_status: maritalStatus,
+        registered_by: receptionistId,
+      });
+
+      setSubmitting(false);
+      Alert.alert(
+        "Patient Registered",
+        `${response.data.name} was registered with ID ${response.data.patient_code}.`,
+        [{ text: "OK", onPress: () => router.replace('/(receptionist)/dashboard') }]
+      );
+    } catch (error: any) {
+      setSubmitting(false);
+      const errorDetail = error.response?.data?.detail || "Could not register patient. Please try again.";
+      Alert.alert("Registration Failed", errorDetail);
+      console.error("Register patient error:", error.response?.data || error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, height: screenHeight }} className="bg-white">
@@ -51,9 +108,6 @@ const RegisterPatient = () => {
             <Text className="text-2xl font-black text-slate-900">Register Patient</Text>
             <View className="h-1 bg-teal-600 w-28 mt-1 rounded-full" />
           </View>
-          <View className="bg-teal-50 border border-teal-100 px-3 py-1 rounded-full">
-            <Text className="text-xs font-bold text-teal-700">P-2024-685</Text>
-          </View>
         </View>
 
         {/* FORM CONTAINER */}
@@ -63,18 +117,20 @@ const RegisterPatient = () => {
             <Text className="text-base font-bold text-slate-800">Patient Information</Text>
           </View>
 
-          <View className="mb-4">
+          <View className="mb-1">
             <Text className="text-xs font-bold text-slate-700 mb-2">Full Name *</Text>
             <TextInput
               placeholder="Enter patient name"
               placeholderTextColor="#94A3B8"
               value={fullName}
-              onChangeText={setFullName}
+              onChangeText={(val) => { setFullName(val); if (errors.fullName) setErrors((p) => ({ ...p, fullName: '' })); }}
               className="w-full bg-slate-50/50 border border-slate-200 p-3.5 rounded-2xl text-slate-800 text-sm"
+              style={{ borderColor: errors.fullName ? '#EF4444' : undefined }}
             />
+            {errors.fullName && <Text className="text-red-500 text-xs mt-1">{errors.fullName}</Text>}
           </View>
 
-          <View className="flex-row justify-between mb-5">
+          <View className="flex-row justify-between mb-1 mt-4">
             <View className="w-[47%]">
               <Text className="text-xs font-bold text-slate-700 mb-2">Age *</Text>
               <TextInput
@@ -82,9 +138,11 @@ const RegisterPatient = () => {
                 placeholderTextColor="#94A3B8"
                 keyboardType="numeric"
                 value={age}
-                onChangeText={setAge}
+                onChangeText={(val) => { setAge(val); if (errors.age) setErrors((p) => ({ ...p, age: '' })); }}
                 className="w-full bg-slate-50/50 border border-slate-200 p-3.5 rounded-2xl text-slate-800 text-sm"
+                style={{ borderColor: errors.age ? '#EF4444' : undefined }}
               />
+              {errors.age && <Text className="text-red-500 text-xs mt-1">{errors.age}</Text>}
             </View>
             <View className="w-[47%]">
               <Text className="text-xs font-bold text-slate-700 mb-2">Phone</Text>
@@ -93,13 +151,15 @@ const RegisterPatient = () => {
                 placeholderTextColor="#94A3B8"
                 keyboardType="phone-pad"
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={(val) => { setPhone(val); if (errors.phone) setErrors((p) => ({ ...p, phone: '' })); }}
                 className="w-full bg-slate-50/50 border border-slate-200 p-3.5 rounded-2xl text-slate-800 text-sm"
+                style={{ borderColor: errors.phone ? '#EF4444' : undefined }}
               />
+              {errors.phone && <Text className="text-red-500 text-xs mt-1">{errors.phone}</Text>}
             </View>
           </View>
 
-          <View className="mb-5">
+          <View className="mb-5 mt-4">
             <Text className="text-xs font-bold text-slate-700 mb-2.5">Gender *</Text>
             <View className="flex-row gap-x-6">
               {['Male', 'Female', 'Other'].map((item) => (
@@ -111,7 +171,7 @@ const RegisterPatient = () => {
             </View>
           </View>
 
-          <View className="mb-5">
+          <View className="mb-1">
             <Text className="text-xs font-bold text-slate-700 mb-2.5">Marital Status</Text>
             <View className="flex-row gap-x-6">
               {['Single', 'Married'].map((item) => (
@@ -123,23 +183,19 @@ const RegisterPatient = () => {
             </View>
           </View>
 
-          <View className="mb-6">
-            <Text className="text-xs font-bold text-slate-700 mb-2">Chief Complaint *</Text>
-            <TextInput
-              placeholder="Describe the patient's main complaint..."
-              placeholderTextColor="#94A3B8"
-              multiline={true}
-              numberOfLines={4}
-              value={chiefComplaint}
-              onChangeText={setChiefComplaint}
-              textAlignVertical="top"
-              className="w-full bg-slate-50/50 border border-slate-200 p-3.5 rounded-2xl text-slate-800 text-sm min-h-[100px]"
-            />
-          </View>
-
-          <TouchableOpacity className="w-full bg-teal-600/80 p-4 rounded-2xl flex-row justify-center items-center gap-x-2 active:opacity-90">
-            <Text className="text-white font-bold text-base">Continue</Text>
-            <MaterialCommunityIcons name="arrow-right" size={18} color="#FFFFFF" />
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={submitting}
+            className="w-full bg-teal-600 p-4 rounded-2xl flex-row justify-center items-center gap-x-2 active:opacity-90 mt-5"
+          >
+            {submitting ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Text className="text-white font-bold text-base">Register Patient</Text>
+                <MaterialCommunityIcons name="arrow-right" size={18} color="#FFFFFF" />
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
