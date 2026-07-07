@@ -163,30 +163,41 @@ export default function AdminDashboard() {
 
                 {/* 4. Quick Actions */}
                 <View className="mt-6">
-                    <Text style={{ color: colors.darkText }} className="text-lg font-bold mb-4">Quick Actions</Text>
-                    <View className="bg-white rounded-[32px] p-2 shadow-sm border" style={{ borderColor: colors.accent }}>
-                        <ActionItem
-                            icon="account-plus-outline"
-                            title="Add New Doctor"
-                            onPress={() => router.push({
-                                pathname: "/(admin)/doctor/add",
-                                params: { editData: null }
-                            })}
-                        />
-                        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
-                        <ActionItem
-                            icon="shield-account-outline"
-                            title="Manage Staff"
-                            onPress={() => { }}
-                        />
-                        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
-                        <ActionItem
-                            icon="file-chart-outline"
-                            title="System Analytics"
-                            onPress={() => router.push('/(admin)/reports')}
-                        />
-                    </View>
-                </View>
+    <Text style={{ color: colors.darkText }} className="text-lg font-bold mb-4">Quick Actions</Text>
+    <View className="bg-white rounded-[32px] p-2 shadow-sm border" style={{ borderColor: colors.accent }}>
+        <ActionItem
+            icon="account-plus-outline"
+            title="Add New Doctor"
+            onPress={() => router.push({
+                pathname: "/(admin)/doctor/add",
+                params: { editData: null }
+            })}
+        />
+        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+        
+        {/* NEW: Add Receptionist Action Item */}
+        <ActionItem
+            icon="card-account-details-outline"
+            title="Add New Receptionist"
+            onPress={() => router.push({
+                pathname: "/(admin)/add_receptionist"
+            })}
+        />
+        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+        
+        <ActionItem
+            icon="shield-account-outline"
+            title="Manage Staff"
+            onPress={() => { }}
+        />
+        <View className="h-[0.5px] mx-5" style={{ backgroundColor: colors.accent }} />
+        <ActionItem
+            icon="file-chart-outline"
+            title="System Analytics"
+            onPress={() => router.push('/(admin)/reports')}
+        />
+    </View>
+</View>
 
                 {/* 5. Live OPD Flow */}
                 <View className="mt-6 mb-10">

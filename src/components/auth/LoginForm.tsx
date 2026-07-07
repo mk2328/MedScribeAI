@@ -57,15 +57,17 @@ const LoginForm = () => {
 
         setLoading(false);
 
-        const role = userData.role.toLowerCase();
+      const role = userData.role.toLowerCase();
 
-        if (role === 'admin') {
-          router.replace('/(admin)/dashboard');
-        } else if (role === 'doctor') {
-          router.replace('/(doctor)/dashboard');
-        } else {
-          Alert.alert("Access Denied", "Unauthorized role.");
-        }
+      if (role === 'admin') {
+        router.replace('/(admin)/dashboard');
+      } else if (role === 'doctor') {
+        router.replace('/(doctor)/dashboard');
+      } else if (role === 'receptionist') {
+        router.replace('/(receptionist)/dashboard'); 
+      } else {
+        Alert.alert("Access Denied", "Unauthorized role.");
+      }
       }
     } catch (error: any) {
       setLoading(false);
