@@ -1,15 +1,9 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-<<<<<<< HEAD
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
-=======
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
 import { colors } from '../../theme/colors';
 
 const API_URL = "https://medscribeai-pzqu.onrender.com";
@@ -38,13 +32,6 @@ const LoginForm = () => {
   }, []);
 
   const handleLogin = async () => {
-<<<<<<< HEAD
-    // ⚡ TEMPORARY TESTING BYPASS ⚡
-    // Is line ki wajah se bager server checking ke direct receptionist dashboard khul jayega!
-    router.replace('/(receptionist)/dashboard');
-    return;
-
-=======
     if (!email || !password) {
       Alert.alert("Error", "Fields cannot be empty");
       return;
@@ -70,25 +57,24 @@ const LoginForm = () => {
 
         setLoading(false);
 
-      const role = userData.role.toLowerCase();
+        const role = userData.role.toLowerCase();
 
-      if (role === 'admin') {
-        router.replace('/(admin)/dashboard');
-      } else if (role === 'doctor') {
-        router.replace('/(doctor)/dashboard');
-      } else if (role === 'receptionist') {
-        router.replace('/(receptionist)/dashboard'); 
-      } else {
-        Alert.alert("Access Denied", "Unauthorized role.");
+        if (role === 'admin') {
+          router.replace('/(admin)/dashboard');
+        } else if (role === 'doctor') {
+          router.replace('/(doctor)/dashboard');
+        } else if (role === 'receptionist') {
+          router.replace('/(receptionist)/dashboard'); 
+        } else {
+          Alert.alert("Access Denied", "Unauthorized role.");
+        }
       }
-      }
-    } catch (error: any) {
+   } catch (error: any) {
       setLoading(false);
       const errorDetail = error.response?.data?.detail || "Server is waking up. Please try again in 30 seconds.";
       Alert.alert("Login Failed", errorDetail);
       console.error("Login Error:", error);
     }
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
   };
 
   return (
@@ -167,14 +153,6 @@ const LoginForm = () => {
       {/* Sign In Button */}
       <TouchableOpacity
         onPress={handleLogin}
-<<<<<<< HEAD
-        style={{ backgroundColor: colors.primary }}
-        className="w-full h-[58px] rounded-2xl items-center justify-center shadow-md mt-2 active:opacity-90"
-      >
-        <Text className="text-white text-lg font-bold">
-          Sign In
-        </Text>
-=======
         disabled={loading || serverStatus === 'checking'}
         style={{ backgroundColor: serverStatus === 'checking' ? colors.mutedText : colors.primary }}
         className="w-full h-[58px] rounded-2xl items-center justify-center shadow-md mt-2 active:opacity-90"
@@ -186,7 +164,6 @@ const LoginForm = () => {
             {serverStatus === 'checking' ? 'Connecting...' : 'Sign In'}
           </Text>
         )}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
       </TouchableOpacity>
 
     </View>

@@ -9,8 +9,6 @@ const API_URL = "https://medscribeai-pzqu.onrender.com";
 const SPECIALIZATIONS = ["Cardiologist", "Dermatologist", "Neurologist", "Pediatrician", "General Physician", "Surgeon"];
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-<<<<<<< HEAD
-=======
 // ---- Validation regexes ----
 const NAME_REGEX = /^[A-Za-z.\s]{3,50}$/;
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
@@ -29,7 +27,6 @@ type Errors = {
     schedule?: string;
 };
 
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
 export default function AddDoctor() {
     const router = useRouter();
     const { editData } = useLocalSearchParams();
@@ -39,10 +36,7 @@ export default function AddDoctor() {
     const [showPicker, setShowPicker] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [serverReady, setServerReady] = useState(false);
-<<<<<<< HEAD
-=======
     const [errors, setErrors] = useState<Errors>({});
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
 
     const [form, setForm] = useState({
         name: '',
@@ -88,10 +82,7 @@ export default function AddDoctor() {
                     schedule: {},
                 });
             }
-<<<<<<< HEAD
-=======
             setErrors({});
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
         }, [editData])
     );
 
@@ -103,26 +94,11 @@ export default function AddDoctor() {
             newSchedule[day] = "09:00 AM - 05:00 PM";
         }
         setForm({ ...form, schedule: newSchedule });
-<<<<<<< HEAD
-=======
         if (errors.schedule) setErrors({ ...errors, schedule: undefined });
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
     };
 
     const updateDayTime = (day: string, timeStr: string) => {
         setForm({ ...form, schedule: { ...form.schedule, [day]: timeStr } });
-<<<<<<< HEAD
-    };
-
-    const handleRegisterOrUpdate = async () => {
-        if (!form.name || !form.username || !form.email || (!isEditMode && !form.password) || !form.phone || Object.keys(form.schedule).length === 0) {
-            Alert.alert("Required", "Please fill all required fields, including working days.");
-            return;
-        }
-
-        if (!form.specialization) {
-            Alert.alert("Required", "Please select a specialization.");
-=======
         if (errors.schedule) setErrors({ ...errors, schedule: undefined });
     };
 
@@ -168,7 +144,7 @@ export default function AddDoctor() {
     };
 
     const validateExperience = (v: string) => {
-        if (!v.trim()) return undefined; // optional field, defaults to 0
+        if (!v.trim()) return undefined; 
         const num = Number(v);
         if (Number.isNaN(num)) return "Experience must be a number.";
         if (num < 0 || num > 60) return "Enter a realistic value (0-60).";
@@ -213,40 +189,24 @@ export default function AddDoctor() {
 
     const handleRegisterOrUpdate = async () => {
         if (!validateForm()) {
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
             return;
         }
 
         setLoading(true);
 
         try {
-<<<<<<< HEAD
-            
-            const payload = {
-                user_data: {
-                    name: form.name,
-                    username: form.username,
-                    email: form.email,
-                    phone: form.phone,
-=======
-
             const payload = {
                 user_data: {
                     name: form.name.trim(),
                     username: form.username.trim().toLowerCase(),
                     email: form.email.trim().toLowerCase(),
                     phone: form.phone.trim(),
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                     password: form.password,
                     role: "doctor",
                 },
                 specialization: form.specialization,
                 experience_years: parseInt(form.experience) || 0,
-<<<<<<< HEAD
-                schedule: form.schedule, 
-=======
                 schedule: form.schedule,
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
             };
 
             console.log("Sending payload:", JSON.stringify(payload));
@@ -339,26 +299,19 @@ export default function AddDoctor() {
                             icon="account-circle-outline"
                             placeholder="Dr. Sarah Ahmed"
                             value={form.name}
-<<<<<<< HEAD
-                            onChange={(v: string) => setForm({ ...form, name: v })}
-=======
                             error={errors.name}
                             onChange={(v: string) => {
                                 setForm({ ...form, name: v });
                                 if (errors.name) setErrors({ ...errors, name: undefined });
                             }}
                             onBlur={() => setErrors({ ...errors, name: validateName(form.name) })}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         />
 
                         <View>
                             <Text className="text-[10px] font-bold mb-2 ml-1 uppercase tracking-widest text-slate-400">Specialization</Text>
                             <TouchableOpacity
                                 onPress={() => setShowPicker(true)}
-<<<<<<< HEAD
-=======
                                 style={{ borderColor: errors.specialization ? '#EF4444' : undefined }}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                                 className="bg-slate-50 p-4 pl-12 rounded-2xl border border-slate-100 flex-row justify-between items-center"
                             >
                                 <MaterialCommunityIcons name="stethoscope" size={20} color={colors.primary} style={{ position: 'absolute', left: 16 }} />
@@ -367,12 +320,9 @@ export default function AddDoctor() {
                                 </Text>
                                 <MaterialCommunityIcons name="chevron-down" size={20} color={colors.mutedText} />
                             </TouchableOpacity>
-<<<<<<< HEAD
-=======
                             {!!errors.specialization && (
                                 <Text className="text-[11px] text-red-500 mt-1 ml-1">{errors.specialization}</Text>
                             )}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         </View>
 
                         <FormInput
@@ -381,16 +331,12 @@ export default function AddDoctor() {
                             placeholder="e.g. 10"
                             keyboardType="numeric"
                             value={form.experience}
-<<<<<<< HEAD
-                            onChange={(v: string) => setForm({ ...form, experience: v })}
-=======
                             error={errors.experience}
                             onChange={(v: string) => {
                                 setForm({ ...form, experience: v });
                                 if (errors.experience) setErrors({ ...errors, experience: undefined });
                             }}
                             onBlur={() => setErrors({ ...errors, experience: validateExperience(form.experience) })}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         />
 
                         <View>
@@ -409,30 +355,14 @@ export default function AddDoctor() {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-<<<<<<< HEAD
-=======
                             {!!errors.schedule && (
                                 <Text className="text-[11px] text-red-500 mt-1 ml-1">{errors.schedule}</Text>
                             )}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         </View>
 
                         {Object.keys(form.schedule).length > 0 && (
                             <View className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <Text className="text-[10px] font-bold mb-3 uppercase tracking-widest text-slate-400">Set Timing Per Day</Text>
-<<<<<<< HEAD
-                                {Object.keys(form.schedule).map(day => (
-                                    <View key={day} className="flex-row items-center mb-3 justify-between">
-                                        <Text className="font-bold text-slate-700 w-10">{day}:</Text>
-                                        <TextInput
-                                            className="bg-white flex-1 ml-2 p-2 px-4 rounded-xl border border-slate-200 text-xs text-slate-600"
-                                            placeholder="e.g. 09:00 AM - 12:00 PM"
-                                            value={form.schedule[day]}
-                                            onChangeText={(v) => updateDayTime(day, v)}
-                                        />
-                                    </View>
-                                ))}
-=======
                                 <Text className="text-[10px] text-slate-400 mb-3">Format: 09:00 AM - 05:00 PM</Text>
                                 {Object.keys(form.schedule).map(day => {
                                     const dayValid = TIME_RANGE_REGEX.test((form.schedule[day] || '').trim());
@@ -455,7 +385,6 @@ export default function AddDoctor() {
                                         </View>
                                     );
                                 })}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                             </View>
                         )}
 
@@ -465,16 +394,12 @@ export default function AddDoctor() {
                             placeholder="+92 300 1234567"
                             keyboardType="phone-pad"
                             value={form.phone}
-<<<<<<< HEAD
-                            onChange={(v: string) => setForm({ ...form, phone: v })}
-=======
                             error={errors.phone}
                             onChange={(v: string) => {
                                 setForm({ ...form, phone: v });
                                 if (errors.phone) setErrors({ ...errors, phone: undefined });
                             }}
                             onBlur={() => setErrors({ ...errors, phone: validatePhone(form.phone) })}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         />
 
                         <FormInput
@@ -483,16 +408,12 @@ export default function AddDoctor() {
                             placeholder="doctor@clinic.com"
                             keyboardType="email-address"
                             value={form.email}
-<<<<<<< HEAD
-                            onChange={(v: string) => setForm({ ...form, email: v })}
-=======
                             error={errors.email}
                             onChange={(v: string) => {
                                 setForm({ ...form, email: v });
                                 if (errors.email) setErrors({ ...errors, email: undefined });
                             }}
                             onBlur={() => setErrors({ ...errors, email: validateEmail(form.email) })}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         />
 
                         <FormInput
@@ -500,9 +421,6 @@ export default function AddDoctor() {
                             icon="at"
                             placeholder="sarah_ahmed123"
                             value={form.username}
-<<<<<<< HEAD
-                            onChange={(v: string) => setForm({ ...form, username: v.toLowerCase().trim().replace(/\s+/g, '_') })}
-=======
                             error={errors.username}
                             onChange={(v: string) => {
                                 const cleaned = v.toLowerCase().trim().replace(/\s+/g, '_');
@@ -510,7 +428,6 @@ export default function AddDoctor() {
                                 if (errors.username) setErrors({ ...errors, username: undefined });
                             }}
                             onBlur={() => setErrors({ ...errors, username: validateUsername(form.username) })}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         />
 
                         <View>
@@ -521,16 +438,12 @@ export default function AddDoctor() {
                                 <TextInput
                                     secureTextEntry={!showPassword}
                                     value={form.password}
-<<<<<<< HEAD
-                                    onChangeText={(v) => setForm({ ...form, password: v })}
-=======
                                     onChangeText={(v) => {
                                         setForm({ ...form, password: v });
                                         if (errors.password) setErrors({ ...errors, password: undefined });
                                     }}
                                     onBlur={() => setErrors({ ...errors, password: validatePassword(form.password) })}
                                     style={{ borderColor: errors.password ? '#EF4444' : undefined }}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                                     className="bg-slate-50 p-4 pl-12 rounded-2xl border border-slate-100 text-slate-800"
                                     placeholder={isEditMode ? "Leave blank to keep same" : "Set password"}
                                     placeholderTextColor="#CBD5E1"
@@ -542,12 +455,9 @@ export default function AddDoctor() {
                                     <MaterialCommunityIcons name={showPassword ? "eye-off" : "eye"} size={20} color={colors.mutedText} />
                                 </TouchableOpacity>
                             </View>
-<<<<<<< HEAD
-=======
                             {!!errors.password && (
                                 <Text className="text-[11px] text-red-500 mt-1 ml-1">{errors.password}</Text>
                             )}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                         </View>
 
                         <TouchableOpacity
@@ -576,15 +486,11 @@ export default function AddDoctor() {
                             renderItem={({ item }) => (
                                 <TouchableOpacity
                                     className="py-4 border-b border-slate-50"
-<<<<<<< HEAD
-                                    onPress={() => { setForm({ ...form, specialization: item }); setShowPicker(false); }}
-=======
                                     onPress={() => {
                                         setForm({ ...form, specialization: item });
                                         setErrors({ ...errors, specialization: undefined });
                                         setShowPicker(false);
                                     }}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                                 >
                                     <Text className="text-base text-slate-700">{item}</Text>
                                 </TouchableOpacity>
@@ -597,26 +503,17 @@ export default function AddDoctor() {
     );
 }
 
-<<<<<<< HEAD
-const FormInput = ({ label, icon, value, onChange, placeholder, ...props }: any) => (
-=======
 const FormInput = ({ label, icon, value, onChange, onBlur, placeholder, error, ...props }: any) => (
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
     <View>
         <Text className="text-[10px] font-bold mb-2 ml-1 uppercase tracking-widest text-slate-400">{label}</Text>
         <View className="relative">
             <TextInput
                 value={value}
                 onChangeText={(text) => onChange(text)}
-<<<<<<< HEAD
-                placeholder={placeholder}
-                placeholderTextColor="#CBD5E1"
-=======
                 onBlur={onBlur}
                 placeholder={placeholder}
                 placeholderTextColor="#CBD5E1"
                 style={{ borderColor: error ? '#EF4444' : undefined }}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
                 className="bg-slate-50 p-4 pl-12 rounded-2xl border border-slate-100 text-slate-800"
                 {...props}
             />
@@ -624,11 +521,8 @@ const FormInput = ({ label, icon, value, onChange, onBlur, placeholder, error, .
                 <MaterialCommunityIcons name={icon} size={20} color={colors.primary} />
             </View>
         </View>
-<<<<<<< HEAD
-=======
         {!!error && (
             <Text className="text-[11px] text-red-500 mt-1 ml-1">{error}</Text>
         )}
->>>>>>> b7fb5d66391df368e161b2bc915cc5d588327e12
     </View>
 );
