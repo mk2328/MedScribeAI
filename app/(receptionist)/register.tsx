@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator, Alert, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,6 +20,10 @@ const RegisterPatient = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Success modal state
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [registeredPatient, setRegisteredPatient] = useState<{ name: string; patient_code: string } | null>(null);
+
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -35,6 +39,15 @@ const RegisterPatient = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const resetForm = () => {
+    setFullName('');
+    setAge('');
+    setPhone('');
+    setGender('Male');
+    setMaritalStatus('Single');
+    setErrors({});
   };
 
   const handleSubmit = async () => {
@@ -59,17 +72,29 @@ const RegisterPatient = () => {
       });
 
       setSubmitting(false);
-      Alert.alert(
-        "Patient Registered",
-        `${response.data.name} was registered with ID ${response.data.patient_code}.`,
-        [{ text: "OK", onPress: () => router.replace('/(receptionist)/dashboard') }]
-      );
+      setRegisteredPatient({
+        name: response.data.name,
+        patient_code: response.data.patient_code,
+      });
+      setShowSuccess(true);
     } catch (error: any) {
       setSubmitting(false);
       const errorDetail = error.response?.data?.detail || "Could not register patient. Please try again.";
       Alert.alert("Registration Failed", errorDetail);
       console.error("Register patient error:", error.response?.data || error.message);
     }
+  };
+
+  const handleRegisterAnother = () => {
+    setShowSuccess(false);
+    setRegisteredPatient(null);
+    resetForm();
+  };
+
+  const handleGoToDashboard = () => {
+    setShowSuccess(false);
+    setRegisteredPatient(null);
+    router.replace('/(receptionist)/dashboard');
   };
 
   return (
@@ -199,6 +224,71 @@ const RegisterPatient = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* SUCCESS MODAL WITH TOKEN */}
+      <Modal
+        visible={showSuccess}
+        transparent
+        animationType="fade"
+        onRequestClose={handleGoToDashboard}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.55)' }} className="items-center justify-center px-8">
+          <View className="w-full bg-white rounded-3xl p-7 items-center shadow-lg">
+
+            {/* PRINT BUTTON — TOP RIGHT */}
+            <TouchableOpacity
+              className="absolute top-4 right-4 w-9 h-9 bg-slate-50 border border-slate-200 rounded-full items-center justify-center z-10"
+            >
+              <MaterialCommunityIcons name="printer-outline" size={18} color="#475569" />
+            </TouchableOpacity>
+
+            <View className="w-16 h-16 bg-emerald-50 rounded-full items-center justify-center mb-4">
+              <MaterialCommunityIcons name="check-circle" size={36} color="#10B981" />
+            </View>
+
+            <Text className="text-lg font-black text-slate-900 text-center">Patient Registered</Text>
+            <Text className="text-sm text-slate-500 text-center mt-1">
+              {registeredPatient?.name} has been added to the queue.
+            </Text>
+
+            {/* TOKEN BADGE */}
+            <View className="mt-6 items-center">
+              <Text className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                Patient Token
+              </Text>
+              <View className="bg-teal-50 border-2 border-dashed border-teal-200 px-6 py-3 rounded-2xl mt-2">
+                <Text className="text-2xl font-black text-teal-700 tracking-wider">
+                  {registeredPatient?.patient_code}
+                </Text>
+              </View>
+            </View>
+
+            {/* FEE TEXT */}
+            <Text className="text-sm font-semibold text-slate-600 mt-4">
+              Consultation Fee: <Text className="font-bold text-slate-900">PKR 1000</Text>
+            </Text>
+
+            {/* ACTIONS */}
+            <View className="w-full gap-y-3 mt-7">
+              <TouchableOpacity
+                onPress={handleRegisterAnother}
+                className="w-full bg-teal-600 p-4 rounded-2xl items-center flex-row justify-center gap-x-2"
+              >
+                <MaterialCommunityIcons name="account-plus-outline" size={18} color="#FFFFFF" />
+                <Text className="text-white font-bold text-sm">Register Another</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleGoToDashboard}
+                className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl items-center flex-row justify-center gap-x-2"
+              >
+                <MaterialCommunityIcons name="view-dashboard-outline" size={18} color="#475569" />
+                <Text className="text-slate-700 font-bold text-sm">Go to Dashboard</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* FIXED BOTTOM NAVIGATION BAR */}
       <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }} className="bg-white border-t border-slate-100 py-3 flex-row justify-around items-center shadow-lg">
